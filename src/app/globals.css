@@ -6,76 +6,77 @@
 
 @layer base {
   :root {
-    /* Updated background to match blueprint light blue (#F0F8FF) */
-    --background: 210 100% 97%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    /* Updated primary to vibrant blue (#29ABE2) from blueprint */
-    --primary: 197 71% 54%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    /* Updated accent to teal (#008080) from blueprint */
-    --accent: 180 100% 25%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 197 71% 54%;
+    /* Aesthetic, Minimalist, Playful, Elegant Theme - Colors adjusted for better clarity */
+    --background: 48 33.3% 96.5%; /* Off-White: #F8F8F4 */
+    --foreground: 200 12.3% 20.2%; /* Charcoal: #2A363B */
+    --card: 48 33.3% 96.5%; /* Off-White: #F8F8F4 */
+    --card-foreground: 200 12.3% 20.2%; /* Charcoal: #2A363B */
+    --popover: 48 33.3% 96.5%; /* Off-White: #F8F8F4 */
+    --popover-foreground: 200 12.3% 20.2%; /* Charcoal: #2A363B */
+    --primary: 0 70% 80%; /* Blush Pink: #F0B3B3 - Slightly more saturated/darker for clarity */
+    --primary-foreground: 200 12.3% 20.2%; /* Charcoal for text on pink */
+    --secondary: 160 50% 75%; /* Soft Mint: #9ED1C1 - Slightly more saturated/darker for clarity */
+    --secondary-foreground: 200 12.3% 20.2%; /* Charcoal for text on mint */
+    --muted: 200 12% 93%; /* Lighter gray for muted backgrounds */
+    --muted-foreground: 200 10% 45%; /* Darker gray for muted text */
+    --accent: 160 50% 75%; /* Soft Mint for hover/accent - using new secondary value */
+    --accent-foreground: 200 12.3% 20.2%; /* Charcoal for text on accent */
+    --destructive: 0 62.8% 69.2%; /* Softer Red */
+    --destructive-foreground: 48 33.3% 96.5%; /* Off-white for text on red */
+    --border: 200 10% 80%; /* Light gray for borders - slightly darker for clarity */
+    --input: 200 10% 80%; /* Light gray for input borders - slightly darker for clarity */
+    --ring: 0 70% 80%; /* Blush Pink for focus rings - using new primary value */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar colors updated to match the adjusted theme */
+    --sidebar-background: 48 33.3% 96.5%;
+    --sidebar-foreground: 200 12.3% 20.2%;
+    --sidebar-primary: 0 70% 80%; /* Using new primary value */
+    --sidebar-primary-foreground: 200 12.3% 20.2%;
+    --sidebar-accent: 200 12% 93%;
+    --sidebar-accent-foreground: 200 12.3% 20.2%;
+    --sidebar-border: 200 10% 80%; /* Using new border value */
+    --sidebar-ring: 0 70% 80%; /* Using new primary value */
   }
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 197 71% 54%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 180 100% 25%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 197 71% 54%;
+    /* Dark theme based on the adjusted palette */
+    --background: 200 12.3% 20.2%; /* Charcoal: #2A363B */
+    --foreground: 48 33.3% 96.5%; /* Off-White: #F8F8F4 */
+    --card: 200 12.3% 20.2%; /* Charcoal: #2A363B */
+    --card-foreground: 48 33.3% 96.5%; /* Off-White: #F8F8F4 */
+    --popover: 200 12.3% 20.2%; /* Charcoal: #2A363B */
+    --popover-foreground: 48 33.3% 96.5%; /* Off-White: #F8F8F4 */
+    --primary: 0 70% 80%; /* Blush Pink: #F0B3B3 - Using new primary value */
+    --primary-foreground: 200 12.3% 20.2%; /* Charcoal for text on pink */
+    --secondary: 160 50% 75%; /* Soft Mint: #9ED1C1 - Using new secondary value */
+    --secondary-foreground: 200 12.3% 20.2%; /* Charcoal for text on mint */
+    --muted: 200 12% 25%; /* Darker muted background */
+    --muted-foreground: 200 10% 65%; /* Lighter muted text */
+    --accent: 160 50% 75%; /* Soft Mint for hover/accent - Using new secondary value */
+    --accent-foreground: 200 12.3% 20.2%; /* Charcoal for text on accent */
+    --destructive: 0 62.8% 69.2%; /* Softer Red */
+    --destructive-foreground: 48 33.3% 96.5%; /* Off-white for text on red - Changed for better contrast */
+    --border: 200 12% 28%; /* Darker border */
+    --input: 200 12% 28%; /* Darker input border */
+    --ring: 0 70% 80%; /* Blush Pink for focus rings - Using new primary value */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Dark sidebar colors updated to match the adjusted theme */
+    --sidebar-background: 200 12.3% 20.2%;
+    --sidebar-foreground: 48 33.3% 96.5%;
+    --sidebar-primary: 0 70% 80%; /* Using new primary value */
+    --sidebar-primary-foreground: 200 12.3% 20.2%;
+    --sidebar-accent: 200 12% 25%;
+    --sidebar-accent-foreground: 48 33.3% 96.5%;
+    --sidebar-border: 200 12% 28%; /* Using new border value */
+    --sidebar-ring: 0 70% 80%; /* Using new primary value */
   }
 }
 

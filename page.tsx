@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createSupabaseServerClient } from "@/lib/supabase/utils"
 import {
   Card,
   CardContent,
@@ -11,10 +11,18 @@ import { getUsers } from "./actions"
 import { columns } from "./columns"
 
 export default async function UsersPage() {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-
-  if (user?.user_metadata?.role !== 'admin') {
+  
+  // Ambil profil pengguna yang sedang login dari tabel 'profiles'
+  const { data: profile } = user 
+    ? await supabase.from('profiles').select('role').eq('id', user.id).single() 
+    : { data: null }
+  
+  // Cek apakah peran pengguna adalah 'admin' dari data profil
+  const isAdmin = profile?.role === 'admin'
+  
+  if (!isAdmin) {
     return (
       <Card className="text-center p-8">
         <CardHeader>

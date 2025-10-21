@@ -1,12 +1,12 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/supabase/server"
+import { createSupabaseServerClient } from "@/lib/supabase/utils"
 import { productSchema, ProductFormValues } from "@/lib/schemas"
 import { Product } from "@/lib/types" // Asumsikan tipe ini masih relevan
 
 export async function getProducts(): Promise<{ products: Product[]; error: string | null }> {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -21,7 +21,7 @@ export async function getProducts(): Promise<{ products: Product[]; error: strin
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -39,11 +39,16 @@ export async function getProductById(id: string): Promise<Product | null> {
 export async function saveProduct(
   payload: ProductFormValues & { id?: string }
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Ambil profil untuk verifikasi peran
+  const { data: profile } = user
+    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
+    : { data: null }
+
   // Hanya admin yang bisa menyimpan produk
-  if (user?.user_metadata?.role !== 'admin') {
+  if (profile?.role !== 'admin') {
     return { success: false, error: "Akses ditolak: Hanya admin yang dapat menyimpan produk." }
   }
 
@@ -73,11 +78,16 @@ export async function saveProduct(
 export async function uploadImage(
   formData: FormData
 ): Promise<{ publicUrl: string | null; error: string | null }> {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Ambil profil untuk verifikasi peran
+  const { data: profile } = user
+    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
+    : { data: null }
+
   // Hanya admin yang bisa mengunggah gambar
-  if (user?.user_metadata?.role !== 'admin') {
+  if (profile?.role !== 'admin') {
     return { publicUrl: null, error: "Akses ditolak: Hanya admin yang dapat mengunggah gambar." }
   }
 
@@ -107,11 +117,16 @@ export async function uploadImage(
 export async function deleteProduct(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Ambil profil untuk verifikasi peran
+  const { data: profile } = user
+    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
+    : { data: null }
+
   // Hanya admin yang bisa menghapus produk
-  if (user?.user_metadata?.role !== 'admin') {
+  if (profile?.role !== 'admin') {
     return { success: false, error: "Akses ditolak: Hanya admin yang dapat menghapus produk." }
   }
 

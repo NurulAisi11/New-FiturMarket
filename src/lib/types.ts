@@ -16,6 +16,14 @@ export interface Variant {
   options: VariantOption[]
 }
 
+export interface QualityPassport {
+  tokenId: string
+  origin: string
+  materials: string[]
+  manufacturingProcess: string
+  certifications: string[]
+}
+
 export interface Product {
   id: string
   name: string
@@ -25,6 +33,7 @@ export interface Product {
   imageHint?: string
   category: string
   variants?: Variant[]
+  qualityPassport?: QualityPassport // Menambahkan qualityPassport sebagai properti opsional
   reviews: Review[]
 }
 

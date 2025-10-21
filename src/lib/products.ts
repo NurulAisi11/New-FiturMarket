@@ -7,6 +7,7 @@ export const products: Product[] = [
     description: "Investasikan pada kenyamanan Anda dengan AeroGlide. Didesain untuk mendukung Anda selama berjam-jam, kursi ini dilengkapi sandaran jaring breathable yang menjaga punggung tetap sejuk, penyangga pinggang dinamis yang menyesuaikan dengan gerakan Anda, dan sandaran tangan 4D. Mekanisme kemiringan sinkronnya memastikan postur yang sehat, mengurangi ketegangan pada punggung dan leher.",
     price: 5250000,
     imageUrl: "https://picsum.photos/seed/1/600/400",
+    stock: 8,
     imageHint: "office chair",
     category: "Furnitur",
     variants: [
@@ -42,8 +43,19 @@ export const products: Product[] = [
     description: "Masuki dunia audio imersif dengan SoundWave Pro. Teknologi peredam bising hibrida canggih secara cerdas menghilangkan gangguan, sementara driver 40mm yang dilapisi titanium menghasilkan suara jernih dengan bass yang dalam. Nikmati kenyamanan luar biasa dari bantalan telinga busa memori dan konektivitas Bluetooth 5.2 yang stabil, lengkap dengan daya tahan baterai 30 jam.",
     price: 2995000,
     imageUrl: "https://picsum.photos/seed/2/600/400",
+    stock: 12,
     imageHint: "headphones",
     category: "Elektronik",
+    variants: [
+      {
+        type: "Warna",
+        options: [
+          { value: "hitam", label: "Midnight Black" },
+          { value: "putih", label: "Arctic White" },
+          { value: "abu", label: "Slate Gray" },
+        ],
+      },
+    ],
     reviews: [
       {
         id: "rev2-1",
@@ -67,8 +79,19 @@ export const products: Product[] = [
     description: "Dominasi permainan dan pekerjaan Anda dengan TitanType. Dibangun dengan sasis aluminium kelas pesawat terbang, keyboard ini menawarkan daya tahan dan estetika premium. Switch mekanis Gateron Brown memberikan umpan balik taktil yang memuaskan tanpa terlalu berisik. Personalisasikan pengalaman Anda dengan pencahayaan RGB per tombol dan makro yang dapat diprogram melalui perangkat lunak kami.",
     price: 1935000,
     imageUrl: "https://picsum.photos/seed/3/600/400",
+    stock: 3,
     imageHint: "keyboard",
     category: "Elektronik",
+    variants: [
+      {
+        type: "Switch",
+        options: [
+          { value: "brown", label: "Gateron Brown" },
+          { value: "blue", label: "Gateron Blue" },
+          { value: "red", label: "Gateron Red" },
+        ],
+      },
+    ],
     reviews: [
       {
         id: "rev3-1",
@@ -92,6 +115,7 @@ export const products: Product[] = [
     description: "Visualisasikan karya Anda dalam detail yang memukau. Monitor CrystalView 27 inci ini menghadirkan resolusi 4K UHD (3840x2160) yang tajam dan panel IPS untuk akurasi warna superior dengan cakupan sRGB 99%. Desain bezel ultra-tipisnya sempurna untuk pengaturan multi-monitor, sementara teknologi Flicker-Free dan Low Blue Light memastikan kenyamanan mata saat digunakan dalam waktu lama.",
     price: 7500000,
     imageUrl: "https://picsum.photos/seed/4/600/400",
+    stock: 0,
     imageHint: "computer monitor",
     category: "Elektronik",
     reviews: [
@@ -117,8 +141,19 @@ export const products: Product[] = [
     description: "Capai puncak performa Anda dengan ChronoFit. Jam tangan pintar ini adalah pelatih pribadi di pergelangan tangan Anda, dengan pelacakan detak jantung 24/7, pemantauan oksigen darah (SpO2), dan analisis tidur mendalam. Layar AMOLED 1.43 inci yang selalu aktif menampilkan semua data Anda dengan jelas, bahkan di bawah sinar matahari. Dengan GPS internal dan ketahanan air 5 ATM, ia siap untuk petualangan apa pun.",
     price: 3735000,
     imageUrl: "https://picsum.photos/seed/5/600/400",
+    stock: 15,
     imageHint: "smart watch",
     category: "Perangkat Pakai",
+    variants: [
+      {
+        type: "Warna Strap",
+        options: [
+          { value: "hitam", label: "Hitam Silikon" },
+          { value: "biru", label: "Biru Laut" },
+          { value: "merah", label: "Merah Bata" },
+        ],
+      },
+    ],
     reviews: [
       {
         id: "rev5-1",
@@ -142,8 +177,19 @@ export const products: Product[] = [
     description: "Suara besar dalam paket kecil. BoomBox Mini dirancang untuk petualangan, dengan sertifikasi IPX7 yang membuatnya tahan air sepenuhnya. Nikmati suara 360 derajat yang kaya dan bass yang menghentak dari radiator pasif ganda. Sambungkan dua speaker untuk mode stereo dan nikmati musik hingga 15 jam non-stop dengan sekali pengisian daya.",
     price: 1200000,
     imageUrl: "https://picsum.photos/seed/6/600/400",
+    stock: 25,
     imageHint: "bluetooth speaker",
     category: "Elektronik",
+    variants: [
+      {
+        type: "Warna",
+        options: [
+          { value: "hitam", label: "Hitam" },
+          { value: "biru", label: "Biru Samudra" },
+          { value: "merah", label: "Merah Karang" },
+        ],
+      },
+    ],
     reviews: [
       {
         id: "rev6-1",
@@ -167,6 +213,7 @@ export const products: Product[] = [
     description: "Rasakan sensasi terbang di setiap langkah. Sepatu lari Velocity dirancang untuk kecepatan dan kenyamanan, menampilkan midsole busa 'React-X' yang sangat responsif untuk pengembalian energi maksimal. Bagian atas jaring rekayasa memberikan sirkulasi udara dan dukungan strategis, sementara sol luar karet karbon menawarkan daya cengkeram dan daya tahan superior.",
     price: 2100000,
     imageUrl: "https://picsum.photos/seed/7/600/400",
+    stock: 4,
     imageHint: "running shoes",
     category: "Pakaian",
     variants: [
@@ -204,8 +251,19 @@ export const products: Product[] = [
     description: "Hidrasi optimal, di mana saja. Botol HydroFlask 32oz (946ml) ini dibuat dengan teknologi insulasi vakum TempShield™ untuk menjaga minuman es tetap dingin hingga 24 jam dan minuman panas tetap hangat hingga 12 jam. Terbuat dari baja tahan karat 18/8 pro-grade yang bebas BPA dan tidak akan mentransfer rasa. Lapisan bubuk Color Last™ yang khas memberikan pegangan anti-selip.",
     price: 675000,
     imageUrl: "https://picsum.photos/seed/8/600/400",
+    stock: 50,
     imageHint: "water bottle",
     category: "Aksesori",
+    variants: [
+      {
+        type: "Warna",
+        options: [
+          { value: "pacific", label: "Pacific" },
+          { value: "olive", label: "Olive" },
+          { value: "stone", label: "Stone" },
+        ],
+      },
+    ],
     reviews: [
       {
         id: "rev8-1",
@@ -229,7 +287,15 @@ export const products: Product[] = [
     description: "Penerangan cerdas untuk ruang kerja modern. Lampu meja LED Lumina tidak hanya terlihat elegan dengan bodi aluminiumnya, tetapi juga fungsional. Sesuaikan antara 5 mode suhu warna (dari hangat ke dingin) dan 7 tingkat kecerahan melalui panel sentuh yang intuitif. Lengan yang dapat disesuaikan dan kepala yang dapat diputar memastikan cahaya jatuh tepat di tempat yang Anda butuhkan.",
     price: 1345000,
     imageUrl: "https://picsum.photos/seed/9/600/400",
+    stock: 18,
     imageHint: "desk lamp",
+    qualityPassport: {
+      tokenId: "QP-LUMI-2024-0009",
+      origin: "Desain oleh studio 'Lumina Design' di Bandung, manufaktur presisi di fasilitas modern.",
+      materials: ["Badan: Aluminium kelas aviasi", "Lengan: Baja ringan", "Panel: Sentuh kapasitif", "LED: Chip efisiensi tinggi dari Jerman"],
+      manufacturingProcess: "Setiap unit melalui proses CNC untuk presisi, anodisasi untuk durabilitas, dan perakitan tangan untuk kontrol kualitas akhir. Diuji selama 48 jam non-stop sebelum dikemas.",
+      certifications: ["Sertifikasi Hemat Energi (SNI)", "Sertifikasi Keamanan Elektronik (CE)"],
+    },
     category: "Furnitur",
     reviews: [
       {
@@ -254,6 +320,7 @@ export const products: Product[] = [
     description: "Nikmati pengalaman kopi spesial dari dataran tinggi Aceh Gayo. Biji Arabika tunggal (single-origin) ini diproses secara semi-washed untuk menghasilkan profil rasa yang kompleks dan bersih. Anda akan menemukan nuansa cokelat hitam, rempah-rempah, dan sentuhan akhir jeruk yang menyegarkan. Disangrai medium untuk keseimbangan rasa yang sempurna.",
     price: 270000,
     imageUrl: "https://picsum.photos/seed/10/600/400",
+    stock: 100,
     imageHint: "coffee beans",
     category: "Bahan Makanan",
     reviews: [
@@ -279,6 +346,7 @@ export const products: Product[] = [
     description: "Nikmati kemurnian alam dengan Madu Hutan Asli Nektar Rimba. Dipanen secara lestari dari lebah liar di hutan pedalaman, madu ini memiliki rasa yang kaya dan kompleks dengan aroma bunga liar. Tanpa proses pemanasan berlebih, enzim dan nutrisi alaminya tetap terjaga.",
     price: 185000,
     imageUrl: "https://picsum.photos/seed/11/600/400",
+    stock: 40,
     imageHint: "jar of wild honey",
     category: "Bahan Makanan",
     reviews: [
@@ -304,6 +372,7 @@ export const products: Product[] = [
     description: "Rasakan ketenangan dalam setiap cangkir Teh Hijau Melati Sari Wangi. Perpaduan daun teh hijau pilihan dengan bunga melati segar menciptakan aroma yang menenangkan dan rasa yang lembut. Kaya akan antioksidan, teh ini adalah pilihan sempurna untuk relaksasi di sore hari.",
     price: 75000,
     imageUrl: "https://picsum.photos/seed/12/600/400",
+    stock: 200,
     imageHint: "jasmine green tea leaves",
     category: "Bahan Makanan",
     reviews: [
@@ -329,6 +398,7 @@ export const products: Product[] = [
     description: "Minyak Kelapa Murni Tropica adalah minyak serbaguna untuk kesehatan dan kecantikan. Dibuat dari kelapa segar melalui proses cold-pressed, VCO ini kaya akan asam laurat dan antioksidan. Gunakan untuk memasak, sebagai pelembap kulit, atau untuk perawatan rambut alami.",
     price: 95000,
     imageUrl: "https://picsum.photos/seed/13/600/400",
+    stock: 80,
     imageHint: "virgin coconut oil in a glass bottle",
     category: "Bahan Makanan",
     reviews: [
@@ -354,6 +424,7 @@ export const products: Product[] = [
     description: "Nikmati sensasi pedas manis yang renyah dari Keripik Singkong Balado kami. Dibuat dari singkong pilihan yang diiris tipis dan dibalut dengan bumbu balado asli, camilan ini dijamin membuat ketagihan. Tanpa bahan pengawet, cocok untuk teman nonton atau kumpul keluarga.",
     price: 45000,
     imageUrl: "https://picsum.photos/seed/14/600/400",
+    stock: 150,
     imageHint: "spicy balado cassava chips",
     category: "Bahan Makanan",
     reviews: [{ id: "rev14-1", author: "Anak Jajan", rating: 5, comment: "Pedasnya pas, manisnya juga! Renyah banget, susah berhenti ngunyah.", createdAt: "2024-01-22T14:00:00Z" }, { id: "rev14-2", author: "Bapak Budi", rating: 4, comment: "Enak buat teman ngopi sore-sore. Bumbunya melimpah.", createdAt: "2024-01-23T16:30:00Z" }],
@@ -361,9 +432,26 @@ export const products: Product[] = [
   {
     id: "15",
     name: "Dompet Kulit RFID 'Elegan'",
+    stock: 22,
     description:
       "Tampil gaya sekaligus aman dengan Dompet Kulit Elegan. Dibuat dari kulit sapi asli berkualitas tinggi, dompet ini memiliki desain minimalis yang tipis namun fungsional. Dilengkapi lapisan RFID-blocking untuk melindungi kartu kredit dan data pribadi Anda dari pencurian nirkabel.",
     price: 450000,
+    qualityPassport: {
+      tokenId: "QP-ELEG-2024-0015",
+      origin: "Pengrajin lokal di Garut, Jawa Barat, Indonesia.",
+      materials: ["Kulit sapi asli (Full-grain)", "Lapisan kain RFID-blocking dari Jerman", "Benang jahit dari serat nilon"],
+      manufacturingProcess: "Kulit dipilih secara manual, dipotong dengan presisi, dan dijahit tangan oleh pengrajin berpengalaman. Proses penyamakan nabati yang ramah lingkungan.",
+      certifications: ["Sertifikasi Kulit Asli Indonesia", "Uji Lab RFID Blocking"],
+    },
+    variants: [
+      {
+        type: "Warna",
+        options: [
+          { value: "coklat", label: "Coklat Tua" },
+          { value: "hitam", label: "Hitam Klasik" },
+        ],
+      },
+    ],
     imageUrl: "https://picsum.photos/seed/15/600/400",
     imageHint: "slim leather wallet with rfid protection",
     category: "Aksesori",
@@ -375,9 +463,21 @@ export const products: Product[] = [
     description:
       "Kemeja flanel klasik yang tak lekang oleh waktu. Terbuat dari 100% katun yang lembut dan hangat, kemeja 'Urban' ini sangat nyaman untuk dipakai sehari-hari. Pola kotak-kotaknya yang stylish mudah dipadukan untuk gaya kasual yang santai namun tetap rapi.",
     price: 380000,
+    stock: 30,
     imageUrl: "https://picsum.photos/seed/16/600/400",
     imageHint: "plaid flannel shirt",
     category: "Pakaian",
+    variants: [
+      {
+        type: "Ukuran",
+        options: [
+          { value: "s", label: "S" },
+          { value: "m", label: "M" },
+          { value: "l", label: "L" },
+          { value: "xl", label: "XL" },
+        ],
+      },
+    ],
     reviews: [{ id: "rev16-1", author: "Fajar A.", rating: 5, comment: "Bahannya adem dan tebalnya pas. Enak dipakai untuk kerja atau jalan-jalan.", createdAt: "2023-11-20T14:00:00Z" }, { id: "rev16-2", author: "Lia K.", rating: 4, comment: "Warnanya sesuai dengan gambar, ukurannya juga pas di badan. Suka banget!", createdAt: "2023-11-22T09:30:00Z" }],
   },
   {
@@ -386,6 +486,14 @@ export const products: Product[] = [
     description:
       "Pantau kesehatan Anda dengan cara yang lebih elegan dan nyaman. Aura Ring adalah cincin pintar berbahan titanium yang ringan dan tahan lama. Ia melacak kualitas tidur, aktivitas harian, detak jantung, dan tingkat stres Anda secara akurat, lalu menyajikannya dalam aplikasi yang mudah dipahami.",
     price: 4500000,
+    stock: 10,
+    qualityPassport: {
+      tokenId: "QP-AURA-2024-0017",
+      origin: "Dirancang di Finlandia, dirakit di fasilitas berteknologi tinggi di Taiwan.",
+      materials: ["Cincin: Titanium Grade 2 (Hypoallergenic)", "Sensor: Sensor inframerah, sensor suhu NTC, akselerometer 3D", "Lapisan dalam: Resin medis non-alergi"],
+      manufacturingProcess: "Dibentuk dari blok titanium padat, dipoles hingga 10 tahap untuk kehalusan maksimal. Sensor dikalibrasi secara individual dan disegel untuk ketahanan air.",
+      certifications: ["Sertifikasi FCC & CE", "ISO 13485 (Standar Alat Medis)"],
+    },
     imageUrl: "https://picsum.photos/seed/17/600/400",
     imageHint: "a sleek smart ring on a finger",
     category: "Perangkat Pakai",
@@ -397,6 +505,7 @@ export const products: Product[] = [
     description:
       "Hadirkan sentuhan gaya industrial modern ke ruangan Anda dengan Rak Buku Loft. Menggabungkan material kayu solid yang hangat dengan rangka besi hitam yang kokoh, rak ini tidak hanya fungsional tetapi juga menjadi statement piece yang menarik. Lima tingkat rak yang luas memberikan banyak ruang untuk koleksi buku dan dekorasi Anda.",
     price: 2200000,
+    stock: 7,
     imageUrl: "https://picsum.photos/seed/18/600/400",
     imageHint: "industrial style bookshelf with wood and metal",
     category: "Furnitur",
@@ -408,6 +517,7 @@ export const products: Product[] = [
     description:
       "Ubah dinding mana pun menjadi layar bioskop dengan CinemaGo. Proyektor portabel ini sangat ringkas namun mampu menampilkan gambar HD hingga 100 inci. Dilengkapi dengan baterai internal yang tahan hingga 2 jam dan speaker terintegrasi, proyektor ini sempurna untuk malam film spontan, presentasi, atau bahkan bermain game.",
     price: 1750000,
+    stock: 1,
     imageUrl: "https://picsum.photos/seed/19/600/400",
     imageHint: "a mini portable projector displaying an image on a wall",
     category: "Elektronik",
@@ -419,9 +529,31 @@ export const products: Product[] = [
     description:
       "Tingkatkan gaya kasual Anda dengan Celana Chino Versa. Dibuat dari bahan katun twill premium dengan sedikit stretch untuk kenyamanan bergerak sepanjang hari. Potongan slim-fit modern memberikan siluet yang rapi tanpa terasa terlalu ketat. Sempurna untuk dipadukan dengan kemeja atau kaos untuk berbagai kesempatan.",
     price: 420000,
+    stock: 45,
     imageUrl: "https://picsum.photos/seed/20/600/400",
     imageHint: "men's slim-fit chino pants in khaki",
     category: "Pakaian",
+    variants: [
+      {
+        type: "Warna",
+        options: [
+          { value: "khaki", label: "Khaki" },
+          { value: "navy", label: "Navy" },
+          { value: "hitam", label: "Hitam" },
+          { value: "abu", label: "Abu-abu" },
+        ],
+      },
+      {
+        type: "Ukuran",
+        options: [
+          { value: "28", label: "28" },
+          { value: "30", label: "30" },
+          { value: "32", label: "32" },
+          { value: "34", label: "34" },
+          { value: "36", label: "36" },
+        ],
+      },
+    ],
     reviews: [
       {
         id: "rev20-1",
@@ -445,6 +577,7 @@ export const products: Product[] = [
     description:
       "Rasakan masa depan dengan Kacamata Pintar Visionary X. Dengarkan musik, terima panggilan telepon, dan dapatkan notifikasi langsung di depan mata Anda melalui layar micro-OLED transparan. Dilengkapi kamera terintegrasi untuk mengabadikan momen dari sudut pandang Anda. Desain ringan dan stylish membuatnya nyaman dipakai seharian.",
     price: 5800000,
+    stock: 5,
     imageUrl: "https://picsum.photos/seed/21/600/400",
     imageHint: "stylish smart glasses",
     category: "Perangkat Pakai",

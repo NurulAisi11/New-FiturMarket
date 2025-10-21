@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
+import { createSupabaseServerClient } from "@/lib/supabase/utils"
 import * as z from "zod"
 
 // This schema can be shared between the login form and this action
@@ -12,7 +12,7 @@ const formSchema = z.object({
 })
 
 export async function signIn(formData: z.infer<typeof formSchema>) {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
 
   const { error } = await supabase.auth.signInWithPassword(formData)
 
@@ -26,7 +26,7 @@ export async function signIn(formData: z.infer<typeof formSchema>) {
 }
 
 export async function signUp(formData: z.infer<typeof formSchema> & { name: string }) {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
 
   const { error } = await supabase.auth.signUp({
     email: formData.email,
@@ -49,7 +49,7 @@ export async function signUp(formData: z.infer<typeof formSchema> & { name: stri
 }
 
 export async function signOut() {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
   await supabase.auth.signOut()
   redirect("/login")
 }

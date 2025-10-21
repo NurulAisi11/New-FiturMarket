@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { columns } from "./columns"
+import { getColumns } from "./columns"
 import { DataTable } from "@/components/data-table"
 import { ProductForm } from "./product-form"
 
@@ -23,6 +23,7 @@ interface ProductClientProps {
 
 export function ProductClient({ products, isAdmin }: ProductClientProps) {
   const { onOpen } = useProductSheet()
+  const columns = getColumns(isAdmin)
 
   return (
     <>

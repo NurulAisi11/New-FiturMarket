@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/supabase/server"
+import { createSupabaseServerClient } from "@/lib/supabase/utils"
 
 interface Profile {
   id: string
@@ -11,7 +11,7 @@ interface Profile {
 }
 
 export async function getUsers(): Promise<{ profiles: Profile[]; error: string | null }> {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
   const { data, error } = await supabase.from("profiles").select("*")
 
   if (error) {
@@ -26,7 +26,7 @@ export async function updateUserRole(
   userId: string,
   newRole: "admin" | "user"
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = createClient()
+  const supabase = createSupabaseServerClient()
 
   const { error } = await supabase
     .from("profiles")

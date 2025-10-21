@@ -6,12 +6,14 @@ import { notFound, useRouter, useParams } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/context/cart-context"
-import { formatPrice } from "@/lib/utils"
-import { ShoppingCart, ArrowLeft, Tag, Star, Minus, Plus, MessageSquare } from "lucide-react"
+import { formatPrice } from "@/lib/utils" 
+import { ShoppingCart, ArrowLeft, Tag, Star, Minus, Plus, MessageSquare, Globe, Layers, Factory, ShieldCheck } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ProductCard } from "@/components/product-card"
 import { ChatSheet } from "@/components/chat-sheet"
+import { StockIndicator } from "@/components/stock-indicator"
+import { VariantSelector } from "@/lib/variant-selector"
 
 export default function ProductDetailPage() {
   const params = useParams()
@@ -21,6 +23,7 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart()
   const router = useRouter()
   const [quantity, setQuantity] = useState(1)
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
   const [isChatOpen, setIsChatOpen] = useState(false)
 
   if (!product) {
@@ -34,6 +37,21 @@ export default function ProductDetailPage() {
     const sum = product.reviews.reduce((acc, review) => acc + review.rating, 0)
     return { totalReviews: total, averageRating: sum / total }
   }, [product.reviews])
+
+  // Inisialisasi pilihan varian default
+  useMemo(() => {
+    const defaultOptions: Record<string, string> = {}
+    product.variants?.forEach(variant => {
+      if (variant.options.length > 0) {
+        defaultOptions[variant.type] = variant.options[0].value
+      }
+    })
+    setSelectedOptions(defaultOptions)
+  }, [product.variants])
+
+  const handleOptionChange = (variantType: string, optionValue: string) => {
+    setSelectedOptions(prev => ({ ...prev, [variantType]: optionValue }))
+  }
 
   const relatedProducts = products
     .filter((p) => p.category === product.category && p.id !== product.id)
@@ -78,9 +96,7 @@ export default function ProductDetailPage() {
                   <Tag className="mr-1 h-3 w-3" />
                   {product.category}
                 </Badge>
-                <Badge variant="outline" className="border-green-500 text-green-600">
-                  Stok Tersedia
-                </Badge>
+                <StockIndicator stock={product.stock} />
               </div>
               <div className="flex items-center gap-2 mb-4">
                 {totalReviews > 0 && (
@@ -96,6 +112,61 @@ export default function ProductDetailPage() {
               </div>
               <p className="text-muted-foreground text-base mb-6">{product.description}</p>
             </div>
+
+            {/* The Making Of Section */}
+            <div className="mb-6 rounded-lg border bg-muted/20 p-6">
+              <h3 className="text-lg font-semibold mb-4 text-primary flex items-center">
+                {product.qualityPassport ? "The Making Of: A Quality Passport" : "Komitmen Kami Pada Kualitas"}
+              </h3>
+              {product.qualityPassport ? (
+                <div className="space-y-4 text-sm text-muted-foreground">
+                  <div className="flex items-start gap-4">
+                    <Globe className="h-5 w-5 mt-0.5 flex-shrink-0 text-primary/80" />
+                    <div>
+                      <p className="font-medium text-foreground">Asal</p>
+                      <p>{product.qualityPassport.origin}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <Layers className="h-5 w-5 mt-0.5 flex-shrink-0 text-primary/80" />
+                    <div>
+                      <p className="font-medium text-foreground">Material Unggulan</p>
+                      <ul className="list-disc list-inside">
+                        {product.qualityPassport.materials.map((material, index) => <li key={index}>{material}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <Factory className="h-5 w-5 mt-0.5 flex-shrink-0 text-primary/80" />
+                    <div>
+                      <p className="font-medium text-foreground">Proses Manufaktur</p>
+                      <p>{product.qualityPassport.manufacturingProcess}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4 text-sm text-muted-foreground">
+                  <div className="flex items-start gap-4">
+                    <ShieldCheck className="h-5 w-5 mt-0.5 flex-shrink-0 text-primary/80" />
+                    <div>
+                      <p className="font-medium text-foreground">Standar Kualitas Terjamin</p>
+                      <p>Setiap produk kami dibuat dengan standar kualitas tertinggi. Kami memilih material terbaik dan bekerja dengan mitra terpercaya untuk memastikan Anda mendapatkan produk yang tahan lama, andal, dan fungsional.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Pilihan Kustomisasi Interaktif */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="mb-6">
+                <VariantSelector
+                  variants={product.variants}
+                  selectedVariants={selectedOptions}
+                  onVariantChange={handleOptionChange}
+                />
+              </div>
+            )}
 
             <Separator className="my-6" />
 
