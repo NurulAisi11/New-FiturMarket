@@ -45,7 +45,7 @@ export function QualityPassportDisplay({ passport }: QualityPassportDisplayProps
             <div>
               <h4 className="font-semibold">Sertifikasi</h4>
               <ul className="list-disc list-inside text-sm text-muted-foreground">
-                {passport.certifications.map((cert, i) => <li key={i}>{cert}</li>)}
+                {passport.certifications.map((cert) => <li key={cert}>{cert}</li>)}
               </ul>
             </div>
           </div>

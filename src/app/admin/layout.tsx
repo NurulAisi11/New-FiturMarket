@@ -1,19 +1,41 @@
-"use client"
-
 import { type ReactNode } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { Package2, Home, ShoppingCart, Users } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/server"
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { AdminNav } from "./_components/admin-nav"
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
-  const pathname = usePathname()
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  const navLinkClasses = (href: string) =>
-    cn(
-      "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-      pathname === href && "bg-muted text-primary"
+  // Ambil profil pengguna yang sedang login dari tabel 'profiles'
+  const { data: profile } = user
+    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
+    : { data: null }
+
+  // Cek apakah peran pengguna adalah 'admin'
+  const isAdmin = profile?.role === 'admin'
+
+  if (!isAdmin) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-muted/40">
+        <Card className="text-center p-8 max-w-md">
+          <CardHeader>
+            <CardTitle className="text-destructive">Akses Ditolak</CardTitle>
+            <CardDescription>
+              Anda tidak memiliki izin untuk mengakses halaman ini. Silakan hubungi administrator jika Anda merasa ini adalah kesalahan.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
     )
+  }
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -26,23 +48,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </Link>
           </div>
           <div className="flex-1">
-            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-              <Link
-                href="/admin/dashboard"
-                className={navLinkClasses("/admin/dashboard")}
-              >
-                <Home className="h-4 w-4" />
-                Dashboard
-              </Link>
-              <Link href="/admin/products" className={navLinkClasses("/admin/products")}>
-                <ShoppingCart className="h-4 w-4" />
-                Produk
-              </Link>
-              <Link href="/admin/users" className={navLinkClasses("/admin/users")}>
-                <Users className="h-4 w-4" />
-                Pengguna
-              </Link>
-            </nav>
+            <AdminNav />
           </div>
         </div>
       </div>

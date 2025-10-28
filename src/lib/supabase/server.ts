@@ -1,7 +1,13 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
-export function createClient() {
+/**
+ * Membuat klien Supabase untuk digunakan di Server Components, Server Actions, dan Route Handlers.
+ * Fungsi ini bersifat async dan harus di-await.
+ * @returns Klien Supabase yang sudah terotentikasi.
+ */
+export async function createClient() {
+  // Wajib di-await di Next.js 14+
   const cookieStore = cookies()
 
   return createServerClient(
@@ -9,25 +15,13 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get: (name: string) => {
-          return cookieStore.get(name)?.value;
-        },
-        set: (name: string, value: string, options: CookieOptions) => {
+        // Adaptor async yang kompatibel dengan Next.js 14+
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
           try {
-            cookieStore.set({ name, value, ...options });
-          } catch (error) {
-            // The `set` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
-        remove: (name: string, options: CookieOptions) => {
-          try {
-            cookieStore.set({ name, value: "", ...options });
-          } catch (error) {
-            // The `delete` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+          } catch {
+            // Mengatur cookies bisa gagal saat SSR streaming, ini bisa diabaikan.
           }
         },
       },

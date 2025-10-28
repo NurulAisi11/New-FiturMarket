@@ -1,0 +1,322 @@
+⚙️ Fitur Market — Admin Workflow & CMS Configuration (Upgraded)
+
+Filename: workflow_admin-upgraded.md
+Date: 2025-10-24
+Applies to: Next.js 14 (App Router) + Supabase (Postgres) + Supabase Auth
+Owner: Product Manager (OPS) & Tech Lead — Genexist Indonesia
+Status: In-Production
+
+Dokumen “upgraded” ini mendefinisikan arsitektur dan praktik terbaik untuk sistem Admin Panel Fitur Market, mencakup kontrol keamanan, caching, observability, dan operasional.
+Dirancang untuk mendukung pipeline AI-driven marketplace dengan Server Actions CRUD, Route Handlers Analytics, RLS penuh, dan audit compliance-ready.
+
+0) Executive Summary
+
+Goal: Membentuk Admin Panel Fitur Market yang aman, efisien, dan terukur.
+
+Pendekatan: Hybrid Server Actions (CRUD) + Route Handlers (Analytics), caching tag-based, secure upload, RLS, rate-limit, audit log, dan integrasi observability.
+
+Prioritas Upgrade:
+
+P0: Security foundation (RLS, audit log, rate-limit, secure upload)
+
+P1: CRUD Server Actions + tag revalidation
+
+P2: Analytics Route Handlers + real-time dashboard
+
+P3: UX & maintainability improvement (autosave, mobile-first ops)
+
+1) Admin Access Architecture
+1.1 Secret Path & Middleware Guard
+
+Admin login path rahasia: /xadmin
+
+Semua route admin dilindungi oleh middleware, RBAC, dan rate-limit
+
+Checklist:
+
+ middleware.ts memeriksa role, token, dan origin.
+
+ Rate-limit login: max 5 attempts / 15 menit / IP (blok 1 jam).
+
+ Tambahkan header keamanan:
+X-Frame-Options=DENY,
+X-Content-Type-Options=nosniff,
+Referrer-Policy=strict-origin-when-cross-origin.
+
+1.2 Role & Session
+
+Role: user, seller, admin, superadmin
+
+Session cookie HttpOnly, secure, SameSite=Lax
+
+Token rotasi otomatis setiap login baru
+
+Enforce RLS sync antara token claim dan database policy
+
+2) CRUD Strategy — Server Actions vs Route Handlers
+Use Case	Pilihan	Alasan
+CRUD (produk, kategori, konten)	Server Actions	Aman dari CSRF, type-safe, langsung ke DB
+Analytics, laporan, ekspor CSV	Route Handlers	Dapat di-cache, lebih fleksibel untuk data agregat
+
+Guideline Folder:
+
+app/(admin)/.../actions.ts untuk aksi CRUD.
+
+app/api/admin/* untuk route analytics & API-level ops.
+
+3) Navigation & Modules (IA)
+Modul	Fungsi	Role
+Dashboard	KPI, log aktivitas, statistik pengguna	Admin, Superadmin
+Products	CRUD produk, stok, kategori, gambar	Admin
+Users	Manajemen akun & role	Admin, Superadmin
+Orders	Moderasi pesanan & refund	Admin
+Reports	Audit, ekspor CSV, statistik AI rekomendasi	Superadmin
+Settings	Konfigurasi CMS, email, branding	Admin
+Logs	Audit keamanan & sistem	Superadmin
+4) State Machine (Order & Review Flow)
+Event	Guard	Transition
+Create HOLD	stok tersedia > 0	→ HOLD
+Submit Proof	state=HOLD & TTL aktif	→ REVIEW
+Approve	state=REVIEW	→ PAID
+Reject	state=REVIEW	→ REJECTED
+TTL Expired	HOLD expired	→ EXPIRED
+
+TTL default 15 menit; HOLD dihitung dari waktu checkout.
+
+5) Database & RLS
+
+Implementasi:
+
+Semua tabel sensitif aktif RLS
+
+Enum user_role (user, seller, admin, superadmin)
+
+Index: (status, created_at) & (admin_id, updated_at)
+
+Audit log di tabel terpisah dengan timestamp & IP
+
+Policy Contoh:
+
+create policy "user_read_own" on profiles
+for select using (auth.uid() = id);
+
+create policy "admin_full_access" on products
+using (auth.role() in ('admin','superadmin'));
+
+6) Settings Architecture (Hybrid)
+
+Struktur: Key-Value per kategori (brand, cms, email, system)
+
+Cache per kategori (TTL 1–5 menit) dengan tag revalidateTag('settings')
+
+Snapshot otomatis untuk setiap perubahan besar
+
+JSON structured untuk blok kompleks (branding, hero banner)
+
+7) Secure File Upload (Server-Side Only)
+
+Upload endpoint: app/api/admin/upload/route.ts
+
+Validasi MIME dari buffer, bukan extension
+
+Ukuran maksimum: image ≤5MB, doc ≤10MB, logo ≤2MB
+
+Hapus EXIF metadata menggunakan sharp
+
+Simpan ke Supabase Storage bucket admin_assets (private)
+
+RLS policy: hanya admin/superadmin dapat menulis; publik hanya membaca link signed URL.
+
+8) Realtime & Authorized Channels
+
+Channel berbasis RLS: admin-{adminId}
+
+Gunakan Supabase Realtime untuk event: order:review, product:updated
+
+Token harus diverifikasi pada join channel
+
+Throttle event per user (eventsPerSecond < 5)
+
+9) Rate Limiting & Abuse Protection
+Target	Limit	Window	Block
+Admin Login	5	15m	1h
+Admin API	100	1m	—
+Bulk Operation	10	5m	—
+
+IP + userId di-hash untuk logging. Semua percobaan brute-force dicatat di audit log.
+
+10) Caching & Revalidation
+
+Tag-based caching: products, orders, settings, analytics
+
+TTL:
+
+Products: 1m
+
+Orders: 30s
+
+Settings: 1h
+
+Analytics: 15m
+
+Gunakan revalidateTag() setelah mutasi di Server Actions.
+
+11) Observability & Audit
+
+Monitoring: Sentry, PostHog, UptimeRobot
+
+Audit logs:
+admin_id, action, target_type/id, details, ip, ua, timestamp
+
+Alert Rules:
+
+Login gagal > 3x / 10m
+
+Error rate > 1% / 15m
+
+Lonjakan pesanan EXPIRED > 20%
+
+Semua log disimpan di audit_logs dengan retensi 90 hari.
+
+12) Security Hardening Summary
+
+Dual validation (Zod) client & server
+
+CSRF Origin Check
+
+CSP: default-src 'self'
+
+Cookie HttpOnly, SameSite=Lax
+
+Session rotation otomatis
+
+.env validation via schema
+
+No direct client → DB write
+
+Backup & restore drill bulanan
+
+13) Performance & Bundle Strategy
+
+Dynamic import untuk modul besar
+
+CDN caching untuk public assets (ttl=1y)
+
+Edge deployment (region: sin1 primary)
+
+Target Core Web Vitals ≥ 90
+
+14) CI/CD Pipeline
+
+GitHub Actions:
+
+lint → security-scan → test → deploy
+
+Branch flow: feature/* → staging → main
+
+Tag versi: v1.x.x
+
+Database migration + typegen sebelum deploy
+
+Slack/Discord notifier otomatis
+
+15) Admin UI Patterns (shadcn + Tailwind)
+
+Button variants: primary, secondary, ghost, destructive
+
+Table: sortable, filterable, export CSV
+
+Form: react-hook-form + zodResolver
+
+Modal: confirm destructive ops
+
+Toast: success/error feedback
+
+Mobile-ready layout (max-w-sm dengan drawer nav)
+
+16) Implementation Checklist
+Phase P0 — Security Foundation
+
+ Middleware guard /xadmin
+
+ RLS aktif di semua tabel sensitif
+
+ Audit log aktif
+
+ Rate-limit login & API
+
+ Secure file upload
+
+Phase P1 — CRUD & Cache
+
+ CRUD Server Actions (products/orders)
+
+ Revalidate tags setelah mutasi
+
+ Settings cache per kategori
+
+ Authorized Realtime channel
+
+Phase P2 — Analytics
+
+ Route handler untuk statistik & laporan
+
+ Export CSV / bulk operation safe-guard
+
+ Dashboard KPI
+
+Phase P3 — UX & Maintenance
+
+ Autosave & skeleton loading
+
+ Filter lanjutan
+
+ Mobile polish
+
+17) Reference Snippets
+Middleware (ringkas)
+export const config = { matcher: ['/((?!api|_next|favicon.ico).*)'] }
+
+Server Action
+'use server'
+import { z } from 'zod'
+import { revalidateTag } from 'next/cache'
+
+const schema = z.object({ title: z.string().min(3), status: z.enum(['DRAFT','PUBLISHED']) })
+export async function createProduct(fd: FormData) {
+  const data = schema.parse({ title: fd.get('title'), status: fd.get('status') })
+  await db.products.insert(data)
+  revalidateTag('products')
+}
+
+Route Handler — Analytics
+export async function GET() {
+  const data = await getAnalytics({ range: '7d' })
+  return Response.json({ success: true, data }, {
+    headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=900' }
+  })
+}
+
+18) Environment Keys
+ADMIN_LOGIN_PATH=/xadmin
+NEXT_PUBLIC_APP_ENV=production
+SUPABASE_SERVICE_ROLE_KEY=[server-only]
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[public]
+UPSTASH_REDIS_URL, UPSTASH_REDIS_TOKEN
+NEXT_PUBLIC_SENTRY_DSN, NEXT_PUBLIC_POSTHOG_KEY
+
+
+Semua variabel harus tervalidasi melalui envSchema.parse(process.env) di runtime.
+
+19) Governance
+Area	PIC	Cadence
+Security & Audit	Tech Lead	Bulanan
+Performance	DevOps Lead	Bulanan
+UX & Ops	Product Manager	6 Mingguan
+Docs & QA Review	Documentation Owner	Kuartalan
+20) Final Notes
+
+“Secure by default, fast by design, observable always.”
+
+Setiap perubahan fitur atau arsitektur Admin wajib mengacu pada dokumen ini dan disertai PR checklist di repositori Fitur Market.
+Revisi disimpan di /docs/v1/dokumentasi/revision/.

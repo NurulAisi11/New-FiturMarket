@@ -1,12 +1,12 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createSupabaseServerClient } from "@/lib/supabase/utils"
+import { createClient } from "@/lib/supabase/server"
 import { productSchema, ProductFormValues } from "@/lib/schemas"
 import { Product } from "@/lib/types" // Asumsikan tipe ini masih relevan
 
 export async function getProducts(): Promise<{ products: Product[]; error: string | null }> {
-  const supabase = createSupabaseServerClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -21,7 +21,7 @@ export async function getProducts(): Promise<{ products: Product[]; error: strin
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  const supabase = createSupabaseServerClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from("products")
     .select("*")
@@ -39,7 +39,7 @@ export async function getProductById(id: string): Promise<Product | null> {
 export async function saveProduct(
   payload: ProductFormValues & { id?: string }
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = createSupabaseServerClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   // Ambil profil untuk verifikasi peran
@@ -78,7 +78,7 @@ export async function saveProduct(
 export async function uploadImage(
   formData: FormData
 ): Promise<{ publicUrl: string | null; error: string | null }> {
-  const supabase = createSupabaseServerClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   // Ambil profil untuk verifikasi peran
@@ -117,7 +117,7 @@ export async function uploadImage(
 export async function deleteProduct(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = createSupabaseServerClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   // Ambil profil untuk verifikasi peran
