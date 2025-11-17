@@ -1,90 +1,95 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
+import { MoreHorizontal, ArrowUpDown } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { useTransition } from "react"
-import { useToast } from "@/hooks/use-toast"
-import { updateUserRole } from "./actions"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useToast } from "@/components/ui/use-toast"
+import { deleteProduct, type Product } from "./actions"
+import { formatPrice } from "@/lib/utils"
+import { ProductDialog } from "./product-dialog"
 
-interface Profile {
-  id: string;
-  full_name: string | null;
-  email: string | null;
-  role: UserRole;
-}
+const handleDelete = async (productId: string, toast: any) => {
+  if (!confirm("Apakah Anda yakin ingin menghapus produk ini?")) return
 
-export const USER_ROLES = {
-  ADMIN: "admin",
-  USER: "user",
-} as const;
+  const { success, error } = await deleteProduct(productId)
 
-export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
-
-const RoleSelector = ({ userId, currentRole }: { userId: string; currentRole: UserRole }) => {
-  const [isPending, startTransition] = useTransition()
-  const { toast } = useToast()
-
-  const onRoleChange = (newRole: UserRole) => {
-    startTransition(async () => {
-      const result = await updateUserRole(userId, newRole)
-      if (result.success) {
-        toast({ title: "Berhasil", description: "Peran pengguna telah diperbarui." })
-      } else {
-        toast({ title: "Gagal", description: result.error, variant: "destructive" })
-      }
+  if (success) {
+    toast({
+      title: "Sukses",
+      description: "Produk berhasil dihapus.",
+    })
+  } else {
+    toast({
+      title: "Gagal",
+      description: error || "Gagal menghapus produk.",
+      variant: "destructive",
     })
   }
-
-  return (
-    <Select
-      defaultValue={currentRole}
-      onValueChange={(value: UserRole) => onRoleChange(value)}
-      disabled={isPending}
-    >
-      <SelectTrigger className="w-[120px]">
-        <SelectValue placeholder="Pilih peran" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={USER_ROLES.ADMIN}>Admin</SelectItem>
-        <SelectItem value={USER_ROLES.USER}>User</SelectItem>
-      </SelectContent>
-    </Select>
-  )
 }
 
-export const columns: ColumnDef<Profile>[] = [
+export const columns: ColumnDef<Product>[] = [
   {
-    accessorKey: "full_name",
-    header: "Nama Lengkap",
-    cell: ({ row }) => row.getValue("full_name") || "-",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
-    accessorKey: "role",
-    header: "Peran Saat Ini",
-    cell: ({ row }) => {
-      const role = row.getValue("role") as UserRole
+    accessorKey: "name",
+    header: ({ column }) => {
       return (
-        <Badge variant={role === USER_ROLES.ADMIN ? "destructive" : "secondary"}>
-          {role}
-        </Badge>
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Nama Produk
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
       )
-    }
+    },
+  },
+  {
+    accessorKey: "price",
+    header: "Harga",
+    cell: ({ row }) => formatPrice(row.original.price),
+  },
+  {
+    accessorKey: "stock",
+    header: "Stok",
   },
   {
     id: "actions",
-    header: "Ubah Peran",
-    cell: ({ row }) => <RoleSelector userId={row.original.id} currentRole={row.original.role} />,
+    cell: function Cell({ row }) {
+      const product = row.original
+      const { toast } = useToast()
+
+      return (
+        <div className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Buka menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+              <ProductDialog product={product}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Edit
+                </DropdownMenuItem>
+              </ProductDialog>
+              <DropdownMenuItem
+                className="text-red-500"
+                onClick={() => handleDelete(product.id, toast)}
+              >
+                Hapus
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )
+    },
   },
 ]

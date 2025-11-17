@@ -1,30 +1,24 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { DataTable } from "@/components/data-table"
-import { getUsers } from "./actions"
+import { getProducts, type Product } from "./actions"
 import { columns } from "./columns"
+import { DataTable } from "./data-table"
 
-// Otorisasi sekarang ditangani oleh layout.tsx
-export default async function UsersPage() {
-  const { profiles, error } = await getUsers()
+export const dynamic = "force-dynamic"
+
+export default async function ProductsPage() {
+  const { products, error } = await getProducts()
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-10">
+        <p className="text-red-500">Gagal memuat produk: {error}</p>
+      </div>
+    )
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Manajemen Pengguna</CardTitle>
-        <CardDescription>Kelola peran dan data pengguna di sistem Anda.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {error
-          ? <p className="text-destructive">{error}</p>
-          : <DataTable columns={columns} data={profiles} filterColumn="email" filterPlaceholder="Cari email pengguna..." />
-        }
-      </CardContent>
-    </Card>
+    <div className="container mx-auto py-10">
+      <h1 className="text-2xl font-bold mb-4">Manajemen Produk</h1>
+      <DataTable columns={columns} data={products} />
+    </div>
   )
 }

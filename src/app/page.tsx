@@ -10,8 +10,6 @@ import { ArrowRight, MapPin } from "lucide-react"
 import ProductGrid from "@/components/product-grid"
 import { PromoSlider } from "@/components/promo-slider"
 import { TrustBar } from "@/components/trust-bar"
-import { TrendingProducts } from "@/components/trending-products"
-import { products } from "@/lib/products" // Import products to get categories
 import { Button } from "@/components/ui/button" // Assuming you have a Button component
 import type { Product } from "@/lib/types"
 import {
@@ -21,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { TrendingProducts } from "@/components/trending-products"
  
 export default function HomePage() {
   const router = useRouter()
@@ -49,7 +48,7 @@ export default function HomePage() {
   // Extract unique categories from products
   const categories = useMemo(() => {
     const uniqueCategories = new Set(products.map(p => p.category));
-    return ["Semua", ...Array.from(uniqueCategories)];
+    return ["Semua", ...Array.from(uniqueCategories).filter(Boolean) as string[]];
   }, []);
 
   useEffect(() => {

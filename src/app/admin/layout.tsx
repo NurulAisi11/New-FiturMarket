@@ -1,7 +1,8 @@
 import { type ReactNode } from "react"
 import Link from "next/link"
-import { Package2, Home, ShoppingCart, Users } from "lucide-react"
-import { createClient } from "@/lib/supabase/server"
+import { Package2 } from "lucide-react"
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import {
   Card,
   CardDescription,
@@ -11,30 +12,13 @@ import {
 import { AdminNav } from "./_components/admin-nav"
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
 
-  // Ambil profil pengguna yang sedang login dari tabel 'profiles'
-  const { data: profile } = user
-    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
-    : { data: null }
-
-  // Cek apakah peran pengguna adalah 'admin'
-  const isAdmin = profile?.role === 'admin'
-
-  if (!isAdmin) {
-    return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-muted/40">
-        <Card className="text-center p-8 max-w-md">
-          <CardHeader>
-            <CardTitle className="text-destructive">Akses Ditolak</CardTitle>
-            <CardDescription>
-              Anda tidak memiliki izin untuk mengakses halaman ini. Silakan hubungi administrator jika Anda merasa ini adalah kesalahan.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    )
+  if (!session) {
+    redirect("/login")
+  }
+  if (session.user?.role !== "admin") {
+    redirect("/") // Atau bisa ke halaman custom 403
   }
 
   return (
