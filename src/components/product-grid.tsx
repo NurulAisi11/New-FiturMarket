@@ -1,18 +1,19 @@
 "use client"
 
 import { useMemo } from "react"
-import { products } from "@/lib/products"
+import type { Product } from "@/lib/types"
 // Impor ID produk terlaris untuk perbandingan
 import { trendingProductIds } from "./trending-products"
 import { ProductCard } from "./product-card"
 
 interface ProductGridProps {
+  products: Product[];
   searchTerm: string;
   selectedCategory: string | null;
   sortBy: string;
 }
 
-export default function ProductGrid({ searchTerm, selectedCategory, sortBy }: ProductGridProps) {
+export default function ProductGrid({ products, searchTerm, selectedCategory, sortBy }: ProductGridProps) {
   const sortedAndFilteredProducts = useMemo(() => {
     let currentProducts = products;
 
@@ -36,7 +37,7 @@ export default function ProductGrid({ searchTerm, selectedCategory, sortBy }: Pr
     }
 
     return sortedProducts;
-  }, [searchTerm, selectedCategory, sortBy]);
+  }, [products, searchTerm, selectedCategory, sortBy]);
 
   return (
     <>
