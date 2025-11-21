@@ -225,7 +225,7 @@ export default function HomePage() {
               </Button>
             ))}
           </div>
-          <ProductGrid searchTerm={searchTerm} selectedCategory={selectedCategory} sortBy={sortBy} />
+          <ProductGrid products={products} searchTerm={searchTerm} selectedCategory={selectedCategory} sortBy={sortBy} />
         </section>
       </main>
     </div>

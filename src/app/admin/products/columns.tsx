@@ -4,10 +4,10 @@ import { useState, useTransition } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, ArrowUpDown, Edit, Trash, Loader2 } from "lucide-react"
 
-import { useProductSheet } from "@/hooks/use-product-sheet"
 import { useToast } from "@/hooks/use-toast"
 import { Product } from "@/lib/types"
 import { deleteProduct } from "./actions"
+import { ProductDialog } from "./product-dialog"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -56,7 +56,6 @@ const actionColumn: ColumnDef<Product> = {
   header: () => <div className="text-right">Aksi</div>,
   cell: ({ row }) => {
     const product = row.original
-    const { onOpen } = useProductSheet()
     const { toast } = useToast()
     const [isPending, startTransition] = useTransition()
 
@@ -84,7 +83,11 @@ const actionColumn: ColumnDef<Product> = {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => onOpen(product.id)}><Edit className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
+            <ProductDialog product={product}>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Edit className="mr-2 h-4 w-4" /> Edit
+              </DropdownMenuItem>
+            </ProductDialog>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onDelete} disabled={isPending} className="text-red-500 focus:text-red-500 focus:bg-red-50">{isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash className="mr-2 h-4 w-4" />} Hapus</DropdownMenuItem>
           </DropdownMenuContent>
