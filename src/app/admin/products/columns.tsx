@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { MoreHorizontal, ArrowUpDown, Edit, Trash, Loader2 } from "lucide-react"
 
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/toast"
 import { Product } from "@/lib/types"
 import { deleteProduct } from "./actions"
 import { ProductDialog } from "./product-dialog"
