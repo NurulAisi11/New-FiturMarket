@@ -24,7 +24,8 @@ export function ProductClient({ products, isAdmin }: ProductClientProps) {
 
   return (
     <>
-      < <CardHeader>
+      <Card>
+        <CardHeader>
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>Produk</CardTitle>
