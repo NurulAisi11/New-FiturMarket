@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/supabase/server" // Mengganti impor yang salah
+import { createClient } from "@/lib/supabase/server"
 import { productSchema, type ProductFormValues } from "@/lib/schemas"
 import { type Product } from "@/lib/types"
 
@@ -40,6 +40,13 @@ export async function saveProduct(
   payload: ProductFormValues & { id?: string }
 ): Promise<{ success: boolean; error: string | null }> {
   const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Ambil profil untuk verifikasi peran
+  const { data: profile } = user
+    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
+    : { data: null }
 
   // Hanya admin yang bisa menyimpan produk
   if (profile?.role !== 'admin') {
