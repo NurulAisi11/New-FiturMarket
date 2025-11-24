@@ -1,9 +1,9 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/supabase/server"
-import { productSchema, ProductFormValues } from "@/lib/schemas"
-import { Product } from "@/lib/types" // Asumsikan tipe ini masih relevan
+import { createClient } from "@/lib/supabase/server" // Pastikan impor ini yang digunakan
+import { productSchema, type ProductFormValues } from "@/lib/schemas"
+import { type Product } from "@/lib/types"
 
 export async function getProducts(): Promise<{ products: Product[]; error: string | null }> {
   const supabase = await createClient()
