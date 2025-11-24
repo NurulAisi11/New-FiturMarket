@@ -5,6 +5,25 @@ import { createClient } from "@/lib/supabase/server"
 import { productSchema, type ProductFormValues } from "@/lib/schemas"
 import { type Product } from "@/lib/types"
 
+/**
+ * Fungsi helper untuk memverifikasi apakah pengguna saat ini adalah admin.
+ * @returns {Promise<boolean>} True jika admin, false jika tidak.
+ */
+async function isAdmin(): Promise<boolean> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return false
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  return profile?.role === 'admin'
+}
+
 export async function getProducts(): Promise<{ products: Product[]; error: string | null }> {
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -39,17 +58,8 @@ export async function getProductById(id: string): Promise<Product | null> {
 export async function saveProduct(
   payload: ProductFormValues & { id?: string }
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = await createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // Ambil profil untuk verifikasi peran
-  const { data: profile } = user
-    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
-    : { data: null }
-
   // Hanya admin yang bisa menyimpan produk
-  if (profile?.role !== 'admin') {
+  if (!(await isAdmin())) {
     return { success: false, error: "Akses ditolak: Hanya admin yang dapat menyimpan produk." }
   }
 
@@ -61,6 +71,7 @@ export async function saveProduct(
 
   const { id, ...productData } = validatedFields.data
 
+  const supabase = await createClient()
   const query = id
     ? supabase.from("products").update(productData).eq("id", id)
     : supabase.from("products").insert(productData)
@@ -79,16 +90,8 @@ export async function saveProduct(
 export async function uploadImage(
   formData: FormData
 ): Promise<{ publicUrl: string | null; error: string | null }> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // Ambil profil untuk verifikasi peran
-  const { data: profile } = user
-    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
-    : { data: null }
-
   // Hanya admin yang bisa mengunggah gambar
-  if (profile?.role !== 'admin') {
+  if (!(await isAdmin())) {
     return { publicUrl: null, error: "Akses ditolak: Hanya admin yang dapat mengunggah gambar." }
   }
 
@@ -99,6 +102,7 @@ export async function uploadImage(
   }
 
   const fileName = `${crypto.randomUUID()}-${file.name}`
+  const supabase = await createClient()
   const { error: uploadError } = await supabase.storage
     .from("product-images") // Pastikan nama bucket ini sama dengan yang Anda buat di Supabase
     .upload(fileName, file)
@@ -118,19 +122,12 @@ export async function uploadImage(
 export async function deleteProduct(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // Ambil profil untuk verifikasi peran
-  const { data: profile } = user
-    ? await supabase.from('profiles').select('role').eq('id', user.id).single()
-    : { data: null }
-
   // Hanya admin yang bisa menghapus produk
-  if (profile?.role !== 'admin') {
+  if (!(await isAdmin())) {
     return { success: false, error: "Akses ditolak: Hanya admin yang dapat menghapus produk." }
   }
 
+  const supabase = await createClient()
   const { error } = await supabase.from("products").delete().eq("id", id)
 
   if (error) {
