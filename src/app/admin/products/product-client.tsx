@@ -31,7 +31,8 @@ export function ProductClient({ products, isAdmin }: ProductClientProps) {
               <CardDescription>Kelola semua produk di toko Anda.</CardDescription>
             </div>
             {isAdmin && (
-              <ProductD m
+              <ProductDialog>
+                <Button><PlusCircle className="h-4 w-4 mr-2" /> Tambah Produk</Button>
               </ProductDialog>
             )}
           </div>
