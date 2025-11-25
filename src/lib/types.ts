@@ -35,6 +35,11 @@ export interface Product {
   variants?: Variant[]
   qualityPassport?: QualityPassport // Menambahkan qualityPassport sebagai properti opsional
   reviews: Review[]
+  moq?: number
+  wholesale_pricing?: {
+    min_quantity: number
+    price_per_unit: number
+  }[]
 }
 
 export interface User {

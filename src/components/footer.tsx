@@ -17,6 +17,9 @@ export function Footer() {
             <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors">
               Bantuan
             </Link>
+            <Link href="/partners" className="text-muted-foreground hover:text-foreground transition-colors">
+              Partners
+            </Link>
           </nav>
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} FiturMarket. Semua Hak Cipta Dilindungi.</p>
         </div>

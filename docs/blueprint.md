@@ -1,16 +1,18 @@
 # Dokumentasi Proyek: FiturMarket
 
-**Versi:** 1.0.0
-**Tanggal:** 26 Juli 2024
+**Versi:** 2.0.0
+**Tanggal:** 25 November 2025
 
 ## 1. Pendahuluan
 
-Dokumen ini berfungsi sebagai panduan teknis komprehensif untuk proyek **FiturMarket**, sebuah aplikasi e-commerce modern yang dibangun di atas platform Next.js dengan Supabase sebagai backend. Tujuannya adalah untuk memberikan pemahaman mendalam tentang arsitektur, fitur yang ada, alur kerja, serta area yang memerlukan pengembangan lebih lanjut kepada tim pengembang.
+Dokumen ini berfungsi sebagai panduan teknis komprehensif untuk proyek **FiturMarket**, sebuah aplikasi e-commerce modern yang berfokus pada model bisnis **grosir (wholesale)**. Aplikasi ini menghubungkan produsen atau penjual tangan pertama langsung dengan pelanggan, dengan tujuan mendukung produk lokal dan pertumbuhan ekonomi yang merata di Indonesia.
 
 **Tujuan Aplikasi:**
-- Menyediakan platform bagi pengguna untuk menjelajahi, mencari, dan membeli produk.
-- Menyediakan panel admin yang aman untuk mengelola data pengguna dan produk.
-- Mengimplementasikan fitur-fitur modern seperti rekomendasi AI dan pencarian visual.
+- Menyediakan platform e-commerce grosir yang mudah digunakan, bahkan bagi pengguna awam.
+- Menghubungkan produsen lokal langsung ke pelanggan untuk memotong rantai distribusi.
+- Mendukung pertumbuhan ekonomi lokal dengan mempromosikan produk-produk Indonesia.
+- Menyediakan panel admin yang aman untuk mengelola produk, pesanan, dan pengguna.
+- Mengimplementasikan fitur-fitur canggih seperti "Quality Passport" untuk transparansi produk.
 
 ---
 
@@ -26,7 +28,7 @@ Dokumen ini berfungsi sebagai panduan teknis komprehensif untuk proyek **FiturMa
 | **Manajemen State**| React Context API (`CartProvider`), React Hooks                        | Pengelolaan state sisi klien untuk keranjang belanja dan UI interaktif. |
 | **Tabel Data**     | TanStack Table                                                         | Untuk menampilkan data tabular yang kompleks di panel admin.            |
 | **Validasi**       | Zod                                                                    | Validasi skema untuk form dan payload Server Action.                    |
-| **Formulir**       | React Hook Form (diasumsikan)                                          | Pola yang diantisipasi untuk form admin yang kompleks.                  |
+| **Formulir**       | React Hook Form                                                        | Digunakan untuk form yang kompleks seperti di dialog produk.            |
 
 ---
 
@@ -40,25 +42,16 @@ Proyek ini mengikuti struktur standar Next.js App Router.
 │   ├── app/
 │   │   ├── (public)/       # Grup rute untuk halaman yang dapat diakses publik
 │   │   │   ├── page.tsx    # Halaman utama (Homepage)
-│   │   │   └── help/       # Halaman bantuan (FAQ)
+│   │   │   └── ...
 │   │   ├── admin/          # Grup rute yang dilindungi untuk admin
-│   │   │   ├── products/   # Manajemen produk (actions.ts sudah ada, UI belum)
-│   │   │   └── users/      # Manajemen pengguna (UI & actions)
-│   │   ├── api/            # (Potensial) Untuk route handlers jika diperlukan
-│   │   └── layout.tsx      # Layout root aplikasi
+│   │   │   ├── products/   # Manajemen produk
+│   │   │   ├── users/      # Manajemen pengguna
+│   │   │   └── orders/     # Manajemen pesanan
+│   │   └── ...
 │   ├── components/         # Komponen React yang dapat digunakan kembali
-│   │   ├── ui/             # Komponen dasar dari shadcn/ui
-│   │   ├── header.tsx      # Header utama dengan pencarian
-│   │   ├── product-grid.tsx# Grid untuk menampilkan produk
-│   │   └── chat-sheet.tsx  # Komponen chat dengan toko
 │   ├── context/            # Konteks React untuk state global
-│   │   └── cart-context.tsx# State management untuk keranjang belanja
 │   ├── lib/                # Logika bisnis, utilitas, dan skema
-│   │   ├── supabase/       # Konfigurasi dan utilitas klien Supabase
-│   │   ├── schemas.ts      # Skema validasi Zod
-│   │   ├── products.ts     # !! PENTING: Saat ini masih menggunakan data mock !!
-│   │   └── utils.ts        # Fungsi pembantu umum (cth: formatPrice)
-│   └── hooks/              # Custom hooks (cth: use-toast)
+│   └── ...
 └── ...
 ```
 
@@ -68,91 +61,75 @@ Proyek ini mengikuti struktur standar Next.js App Router.
 
 ### A. Fitur Publik (Untuk Pengguna Umum)
 
-1.  **Halaman Utama (`/`)**:
-    - **Pencarian Produk**: Berdasarkan nama produk.
-    - **Filter Kategori**: Memfilter produk berdasarkan kategori yang tersedia.
-    - **Sortir Produk**: Mengurutkan berdasarkan relevansi, harga tertinggi, dan terendah.
-    - **Rekomendasi AI**: Menampilkan produk yang direkomendasikan (saat ini disimulasikan).
-    - **Cek Ongkir**: Fitur simulasi untuk mengecek estimasi biaya dan waktu pengiriman.
-    - **Data Produk**: Saat ini masih menggunakan data statis dari `src/lib/products.ts`.
+1.  **Model Harga Grosir**:
+    - **Minimum Order Quantity (MOQ)**: Setiap produk memiliki jumlah pesanan minimum.
+    - **Tiered Pricing**: Harga per unit menurun seiring dengan peningkatan jumlah pembelian.
 
-2.  **Halaman Bantuan (`/help`)**:
-    - Menampilkan daftar FAQ menggunakan komponen akordeon.
-    - Menyediakan informasi kontak.
+2.  **Halaman Detail Produk (`/product/[id]`)**:
+    - Menampilkan detail lengkap produk, termasuk MOQ dan tabel harga grosir.
+    - **Quality Passport**: Menampilkan informasi terverifikasi tentang asal, material, dan proses manufaktur produk.
+    - Tombol untuk menambah produk ke keranjang (mematuhi MOQ) dan memulai chat dengan toko.
 
-3.  **Chat dengan Toko**:
-    - Dapat diakses melalui komponen `ChatSheet`.
-    - **Logika masih disimulasikan**: Memberikan balasan otomatis berdasarkan kata kunci dalam pertanyaan pengguna.
+3.  **Rekomendasi AI**:
+    - Menampilkan produk yang direkomendasikan berdasarkan riwayat penjelajahan pengguna.
+
+4.  **Alur Checkout Grosir**:
+    - Keranjang belanja yang menghitung total berdasarkan harga grosir.
+    - Formulir checkout dan ringkasan pesanan.
+    - Alur pembayaran manual dengan unggah bukti pembayaran.
+
+5.  **Manajemen Pesanan Pengguna (`/my-orders`)**:
+    - Pengguna dapat melihat riwayat pesanan mereka dan detail setiap pesanan.
+    - Pengguna dapat mengunggah bukti pembayaran untuk pesanan yang "pending payment".
 
 ### B. Fitur Admin (Akses Terbatas)
 
-1.  **Manajemen Pengguna (`/admin/users`)**:
-    - **Otorisasi**: Halaman dan aksi hanya dapat diakses oleh pengguna dengan peran `admin`.
-    - **Tampilan**: Menampilkan daftar pengguna menggunakan `DataTable` dari TanStack Table.
-    - **Aksi**: Admin dapat mengubah peran pengguna lain (antara `admin` dan `user`) secara *real-time* dari tabel.
+1.  **Manajemen Produk (`/admin/products`)**:
+    - UI lengkap untuk CRUD produk.
+    - Kemampuan untuk mengatur MOQ dan tingkatan harga grosir untuk setiap produk.
+    - Kemampuan untuk menambahkan dan mengedit data "Quality Passport".
 
-2.  **Manajemen Produk (Backend)**:
-    - **Server Actions (`/admin/products/actions.ts`)**: Logika backend untuk operasi CRUD (Create, Read, Update, Delete) produk sudah dibuat.
-    - **Otorisasi**: Semua aksi dilindungi dan hanya bisa dieksekusi oleh `admin`.
-    - **Upload Gambar**: Fungsi untuk mengunggah gambar produk ke Supabase Storage.
-    - **Status**: UI untuk fitur ini belum diimplementasikan.
+2.  **Manajemen Pesanan (`/admin/orders`)**:
+    - Menampilkan daftar semua pesanan pelanggan.
+    - Memungkinkan admin untuk melihat detail pesanan, termasuk bukti pembayaran, dan mengubah status pesanan.
+
+3.  **Manajemen Pengguna (`/admin/users`)**:
+    - Menampilkan daftar pengguna dan memungkinkan admin untuk mengubah peran pengguna.
 
 ### C. Sistem Inti
 
-1.  **Autentikasi**:
-    - Menggunakan **Supabase Auth**.
-    - Alur login, registrasi, dan logout dikelola oleh Supabase.
-
-2.  **Otorisasi (RBAC)**:
-    - Diterapkan pada level Server Action dan halaman.
-    - Tabel `profiles` di Supabase memiliki kolom `role` (`admin` atau `user`).
-    - Aksi atau halaman yang sensitif akan memverifikasi peran pengguna sebelum dieksekusi.
+1.  **Autentikasi & Otorisasi (RBAC)**:
+    - Menggunakan Supabase Auth dengan peran `admin` dan `user`.
+    - Keamanan diterapkan di level Server Action dan middleware.
 
 ---
 
 ## 5. Kelemahan & Area untuk Peningkatan
 
-1.  **Sumber Data Produk**:
-    - **Masalah**: Halaman utama (`HomePage`) dan komponen terkait masih mengambil data dari file statis `src/lib/products.ts`. Ini adalah *mock data* dan tidak terhubung ke database.
-    - **Rekomendasi**: Refactor `HomePage` untuk melakukan *fetch* data produk dari Supabase menggunakan Server Action `getProducts()` yang sudah ada.
+1.  **Integrasi Payment Gateway**:
+    - **Masalah**: Alur checkout saat ini hanya mendukung pembayaran manual.
+    - **Rekomendasi**: Integrasikan dengan payment gateway untuk otomatisasi proses pembayaran.
 
-2.  **Logika Chat yang Disimulasikan**:
-    - **Masalah**: Komponen `ChatSheet` menggunakan `setTimeout` dan logika `if-else` sederhana untuk membalas pesan. Ini tidak interaktif dan tidak menyimpan riwayat chat.
-    - **Rekomendasi**: Hubungkan `ChatSheet` ke backend sungguhan. Bisa menggunakan Supabase Realtime, atau integrasi dengan layanan AI seperti Gemini API untuk balasan yang lebih cerdas.
+2.  **Verifikasi Pembelian untuk Ulasan**:
+    - **Masalah**: Belum ada mekanisme untuk memverifikasi apakah pengguna yang memberikan ulasan telah membeli produk tersebut.
+    - **Rekomendasi**: Tambahkan validasi untuk memastikan hanya pembeli yang dapat memberikan ulasan.
 
-3.  **UI Manajemen Produk Admin**:
-    - **Masalah**: Logika backend (Server Actions) untuk CRUD produk sudah ada, tetapi belum ada antarmuka (UI) di sisi klien untuk admin menggunakannya.
-    - **Rekomendasi**: Buat halaman baru di `/admin/products` yang menggunakan `DataTable` untuk menampilkan daftar produk. Tambahkan fungsionalitas untuk membuat, mengedit, dan menghapus produk melalui form/dialog.
-
-4.  **Pencarian & Filter**:
-    - **Masalah**: Fungsionalitas pencarian dan filter saat ini berjalan di sisi klien terhadap data statis. Ini tidak efisien untuk dataset yang besar.
-    - **Rekomendasi**: Pindahkan logika pencarian dan filter ke sisi server. Modifikasi Server Action `getProducts()` untuk menerima parameter pencarian dan filter, lalu terapkan pada query Supabase.
+3.  **Manajemen Inventaris**:
+    - **Masalah**: Sistem "stock hold" saat ini sederhana. Untuk model grosir, diperlukan manajemen inventaris yang lebih canggih.
+    - **Rekomendasi**: Kembangkan sistem manajemen inventaris yang dapat menangani pesanan besar dan back-ordering.
 
 ---
 
 ## 6. Langkah Selanjutnya (Next Steps)
 
-Berikut adalah prioritas pengembangan yang disarankan:
+1.  **(Prioritas Tinggi) Penyempurnaan UX untuk Grosir**:
+    - Lakukan review dan perbaikan pada alur pengguna untuk memastikan kemudahan penggunaan bagi target audiens (produsen dan pembeli grosir).
+    - Perjelas informasi tentang MOQ dan harga grosir di seluruh aplikasi.
 
-1.  **(Prioritas Tinggi) Hubungkan Halaman Utama ke Database**:
-    - Ganti `import { products } from "@/lib/products"` di `src/app/page.tsx` dengan pemanggilan Server Action `getProducts()`.
-    - Gunakan `useEffect` atau React Server Components untuk memuat data produk dari database.
+2.  **(Prioritas Sedang) Integrasi Payment Gateway**:
+    - Implementasikan alur pembayaran otomatis untuk meningkatkan efisiensi transaksi.
 
-2.  **(Prioritas Tinggi) Implementasi UI Admin untuk Produk**:
-    - Buat halaman `/admin/products/page.tsx`.
-    - Gunakan `DataTable` untuk menampilkan produk yang diambil dari `getProducts()`.
-    - Buat komponen `Dialog` atau halaman terpisah untuk form tambah/edit produk yang memanggil Server Action `saveProduct()`.
-
-3.  **(Prioritas Sedang) Refactor Logika Chat**:
-    - Rancang skema tabel `chats` dan `messages` di Supabase.
-    - Ubah `ChatSheet` untuk membaca dan mengirim pesan ke database, idealnya menggunakan Supabase Realtime untuk pembaruan live.
-
-4.  **(Prioritas Sedang) Pindahkan Logika Filter ke Server**:
-    - Modifikasi `getProducts()` agar bisa menerima argumen seperti `searchTerm` dan `category`.
-    - Terapkan filter ini pada query Supabase menggunakan `.ilike()` untuk pencarian dan `.eq()` untuk kategori.
-
-5.  **(Jangka Panjang) Halaman Detail Produk**:
-    - Buat halaman dinamis `app/product/[id]/page.tsx` untuk menampilkan detail satu produk.
-    - Gunakan Server Action `getProductById()` untuk mengambil data.
+3.  **(Jangka Panjang) Platform Multi-Vendor**:
+    - Kembangkan fungsionalitas agar produsen dapat mendaftar dan mengelola produk mereka sendiri. Ini akan memerlukan peran `seller` atau `producer` baru.
 
 ---

@@ -10,10 +10,11 @@ import { BuyNowSummary } from "@/app/checkout/buy-now-summary"
 import { CheckoutForm } from "@/components/checkout-form"
 import { OrderSummary } from "@/components/order-summary"
 import { Button } from "@/components/ui/button"
-import { products, Product } from "@/lib/products"
+import { getProductById } from "@/app/admin/products/actions"
+import { Product } from "@/lib/types"
 
 export function CheckoutContent() {
-  const { cartCount } = useCart()
+  const { cartItems, cartCount } = useCart()
   const router = useRouter()
   const searchParams = useSearchParams()
   const productId = searchParams.get("productId")
@@ -22,35 +23,35 @@ export function CheckoutContent() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (productId) {
-      const foundProduct = products.find((p) => p.id === productId)
-      setBuyNowProduct(foundProduct || null)
+    async function fetchBuyNowProduct() {
+      if (productId) {
+        const product = await getProductById(productId)
+        setBuyNowProduct(product)
+      }
+      setIsLoading(false)
     }
-    setIsLoading(false)
+    fetchBuyNowProduct()
   }, [productId])
 
-  // Jika ini adalah mode "Beli Sekarang"
-  if (productId) {
-    if (isLoading) {
-      return (
-        <div className="flex flex-col min-h-screen items-center justify-center text-center p-4">
-          <h1 className="text-2xl font-bold">Memuat Produk...</h1>
-        </div>
-      )
-    }
-    if (!buyNowProduct) {
-      return (
-        <div className="flex flex-col min-h-screen items-center justify-center text-center p-4">
-          <h1 className="text-2xl font-bold mb-2">Produk Tidak Ditemukan</h1>
-          <Button asChild>
-            <Link href="/">Kembali ke Beranda</Link>
-          </Button>
-        </div>
-      )
-    }
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center text-center p-4">
+        <h1 className="text-2xl font-bold">Memuat...</h1>
+      </div>
+    )
   }
 
-  // Jika keranjang kosong DAN bukan mode "Beli Sekarang"
+  if (productId && !buyNowProduct) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center text-center p-4">
+        <h1 className="text-2xl font-bold mb-2">Produk Tidak Ditemukan</h1>
+        <Button asChild>
+          <Link href="/">Kembali ke Beranda</Link>
+        </Button>
+      </div>
+    )
+  }
+
   if (cartCount === 0 && !productId) {
     return (
       <div className="flex flex-col min-h-screen items-center justify-center text-center p-4">
@@ -65,6 +66,9 @@ export function CheckoutContent() {
       </div>
     )
   }
+
+  const items = buyNowProduct ? [{ ...buyNowProduct, quantity: 1 }] : cartItems
+  const total = buyNowProduct ? buyNowProduct.price : useCart().cartTotal
 
   return (
     <>
@@ -81,7 +85,7 @@ export function CheckoutContent() {
       <main className="container mx-auto px-4 md:px-6 py-8 flex-grow">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div>
-            <CheckoutForm />
+            <CheckoutForm cartItems={items} total={total} />
           </div>
           {buyNowProduct ? (
             <BuyNowSummary product={buyNowProduct} />

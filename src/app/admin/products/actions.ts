@@ -24,19 +24,94 @@ async function isAdmin(): Promise<boolean> {
   return profile?.role === 'admin'
 }
 
-export async function getProducts(): Promise<{ products: Product[]; error: string | null }> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false })
+export async function getProducts(options?: {
 
-  if (error) {
-    console.error("Error fetching products:", error)
-    return { products: [], error: error.message }
+  category?: string;
+
+  limit?: number;
+
+  excludeId?: string;
+
+  searchTerm?: string;
+
+  sortBy?: string;
+
+}): Promise<{ products: Product[]; error: string | null }> {
+
+  const supabase = await createClient()
+
+  let query = supabase
+
+    .from("products")
+
+    .select("*")
+
+
+
+  if (options?.searchTerm) {
+
+    query = query.ilike("name", `%${options.searchTerm}%`)
+
   }
 
+
+
+  if (options?.category) {
+
+    query = query.eq("category", options.category)
+
+  }
+
+
+
+  if (options?.sortBy === "price-desc") {
+
+    query = query.order("price", { ascending: false })
+
+  } else if (options?.sortBy === "price-asc") {
+
+    query = query.order("price", { ascending: true })
+
+  } else {
+
+    query = query.order("created_at", { ascending: false })
+
+  }
+
+
+
+  if (options?.limit) {
+
+    query = query.limit(options.limit)
+
+  }
+
+
+
+  if (options?.excludeId) {
+
+    query = query.not("id", "eq", options.excludeId)
+
+  }
+
+
+
+  const { data, error } = await query
+
+
+
+  if (error) {
+
+    console.error("Error fetching products:", error)
+
+    return { products: [], error: error.message }
+
+  }
+
+
+
   return { products: data as Product[], error: null }
+
 }
 
 export async function getProductById(id: string): Promise<Product | null> {

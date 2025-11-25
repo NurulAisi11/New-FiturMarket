@@ -1,9 +1,14 @@
 "use client"
 
-import type { CartItem, Product, Variant } from "@/lib/types"
+import type { Product } from "@/lib/types"
 import type React from "react"
 import { createContext, useContext, useState, useMemo } from "react"
 import { useToast } from "@/hooks/use-toast"
+
+export interface CartItem extends Product {
+  quantity: number;
+  selectedVariant?: Record<string, string>;
+}
 
 interface CartContextType {
   cartItems: CartItem[]
@@ -17,13 +22,26 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
+function getPriceForQuantity(product: Product, quantity: number): number {
+    if (product.wholesale_pricing && product.wholesale_pricing.length > 0) {
+        const sortedTiers = [...product.wholesale_pricing].sort(
+            (a, b) => b.min_quantity - a.min_quantity
+        );
+        for (const tier of sortedTiers) {
+            if (quantity >= tier.min_quantity) {
+                return tier.price_per_unit;
+            }
+        }
+    }
+    return product.price;
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const { toast } = useToast()
 
   const addToCart = (product: Product, quantity = 1, selectedVariant?: Record<string, string>) => {
     setCartItems((prevItems) => {
-      // Find item that matches both product ID and all selected variants
       const existingItem = prevItems.find(
         (item) =>
           item.id === product.id &&
@@ -31,11 +49,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       )
 
       if (existingItem) {
+        const newQuantity = existingItem.quantity + quantity;
+        const newPrice = getPriceForQuantity(product, newQuantity);
         return prevItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          item.id === product.id ? { ...item, quantity: newQuantity, price: newPrice } : item
         )
       }
-      return [...prevItems, { ...product, quantity, selectedVariant }]
+      const newPrice = getPriceForQuantity(product, quantity);
+      return [...prevItems, { ...product, quantity, selectedVariant, price: newPrice }]
     })
     toast({
       title: "Ditambahkan ke keranjang",
@@ -50,11 +71,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId)
-      return
+    const itemToUpdate = cartItems.find((item) => item.id === productId);
+    if (!itemToUpdate) return;
+
+    if (quantity < (itemToUpdate.moq || 1)) {
+        removeFromCart(productId);
+        return;
     }
-    setCartItems((prevItems) => prevItems.map((item) => (item.id === productId ? { ...item, quantity } : item)))
+    
+    const newPrice = getPriceForQuantity(itemToUpdate, quantity);
+    setCartItems((prevItems) => prevItems.map((item) => (item.id === productId ? { ...item, quantity, price: newPrice } : item)))
   }
 
   const clearCart = () => {
@@ -67,8 +93,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const cartTotal = useMemo(() => {
     return cartItems.reduce((total, item) => {
-      const price = item.discountPrice ?? item.price
-      return total + price * item.quantity
+      return total + item.price * item.quantity
     }, 0)
   }, [cartItems])
 

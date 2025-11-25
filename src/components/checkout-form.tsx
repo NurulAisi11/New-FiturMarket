@@ -9,19 +9,23 @@ import { Input } from "@/components/ui/input"
 import { useCart } from "@/context/cart-context"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
-import { CreditCard, User, Mail, Home } from "lucide-react"
+import { User, Mail, Home } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import { createOrder } from "@/app/checkout/actions"
+import { CartItem } from "@/context/cart-context"
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Nama harus minimal 2 karakter." }),
   email: z.string().email({ message: "Masukkan email yang valid." }),
   address: z.string().min(10, { message: "Alamat harus minimal 10 karakter." }),
-  cardNumber: z.string().regex(/^\d{16}$/, { message: "Nomor kartu harus 16 digit." }),
-  expiryDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, { message: "Gunakan format MM/YY." }),
-  cvc: z.string().regex(/^\d{3}$/, { message: "CVC harus 3 digit." }),
 })
 
-export function CheckoutForm() {
+interface CheckoutFormProps {
+  cartItems: CartItem[];
+  total: number;
+}
+
+export function CheckoutForm({ cartItems, total }: CheckoutFormProps) {
   const { clearCart } = useCart()
   const { toast } = useToast()
   const router = useRouter()
@@ -32,20 +36,26 @@ export function CheckoutForm() {
       name: "",
       email: "",
       address: "",
-      cardNumber: "",
-      expiryDate: "",
-      cvc: "",
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Submitting order:", values)
-    toast({
-      title: "Pembayaran Berhasil Diproses",
-      description: "Terima kasih! Anda akan diarahkan ke halaman konfirmasi pesanan.",
-    })
-    // Tidak perlu clearCart() di sini karena halaman success akan melakukannya
-    router.push("/checkout/success")
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const result = await createOrder(cartItems, total, values);
+
+    if (result.error) {
+      toast({
+        title: "Gagal Membuat Pesanan",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: "Pesanan Berhasil Dibuat",
+        description: "Anda akan diarahkan ke halaman konfirmasi pesanan.",
+      })
+      clearCart()
+      router.push(`/checkout/success?orderId=${result.orderId}`)
+    }
   }
 
   return (
@@ -108,56 +118,8 @@ export function CheckoutForm() {
               />
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Detail Pembayaran (Mock)</h3>
-              <FormField
-                control={form.control}
-                name="cardNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nomor Kartu</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input placeholder="**** **** **** ****" {...field} className="pl-10" />
-                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="expiryDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Kedaluwarsa</FormLabel>
-                      <FormControl>
-                        <Input placeholder="MM/YY" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="cvc"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CVC</FormLabel>
-                      <FormControl>
-                        <Input placeholder="123" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full text-lg py-6">
-              Bayar Sekarang
+            <Button type="submit" className="w-full text-lg py-6" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Memproses..." : "Buat Pesanan"}
             </Button>
           </form>
         </Form>

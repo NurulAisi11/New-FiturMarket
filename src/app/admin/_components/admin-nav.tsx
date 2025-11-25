@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
-import { Home, Package, Users } from 'lucide-react'
+import { Home, Package, Users, ShoppingCart } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
 export function AdminNav() {
@@ -23,6 +23,10 @@ export function AdminNav() {
       <Link href="/admin/products" className={navLinkClasses("/admin/products")}>
         <Package className="h-4 w-4" />
         Products
+      </Link>
+      <Link href="/admin/orders" className={navLinkClasses("/admin/orders")}>
+        <ShoppingCart className="h-4 w-4" />
+        Orders
       </Link>
       <Link href="/admin/users" className={navLinkClasses("/admin/users")}>
         <Users className="h-4 w-4" />

@@ -1,31 +1,61 @@
- "use client"
- 
- import { useEffect } from "react"
- import Link from "next/link"
- import { Button } from "@/components/ui/button"
- import { useCart } from "@/context/cart-context"
- import { CheckCircle2 } from "lucide-react"
- 
- export default function CheckoutSuccessPage() {
-   const { clearCart } = useCart()
- 
-   // Hapus item dari keranjang saat halaman ini dimuat
-   useEffect(() => {
-     clearCart()
-   }, []) // eslint-disable-line react-hooks/exhaustive-deps
- 
-   return (
-     <div className="flex flex-col min-h-screen items-center justify-center bg-background text-center p-4">
-       <div className="max-w-md">
-         <CheckCircle2 className="h-20 w-20 text-green-500 mx-auto mb-6" />
-         <h1 className="text-3xl font-bold mb-4">Pesanan Berhasil!</h1>
-         <p className="text-muted-foreground mb-8">
-           Terima kasih telah berbelanja di FiturMarket. Kami telah menerima pesanan Anda dan akan segera memprosesnya.
-         </p>
-         <Button asChild size="lg">
-           <Link href="/">Kembali ke Beranda</Link>
-         </Button>
-       </div>
-     </div>
-   )
- }
+"use client";
+
+import { useSearchParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle } from "lucide-react";
+import Link from "next/link";
+import { Suspense } from "react";
+
+function SuccessPageContent() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId");
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col min-h-screen items-center justify-center text-center p-4 bg-gray-50">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+            <CheckCircle className="h-6 w-6 text-green-600" />
+          </div>
+          <CardTitle className="mt-4 text-2xl font-bold">
+            Pesanan Berhasil Dibuat!
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-muted-foreground">
+            Terima kasih telah berbelanja di FiturMarket. Pesanan Anda dengan ID{" "}
+            <span className="font-bold text-primary">{orderId}</span> telah kami
+            terima dan sedang diproses.
+          </p>
+          <p className="text-muted-foreground">
+            Silakan lakukan pembayaran dan unggah bukti pembayaran di halaman
+            detail pesanan.
+          </p>
+          <div className="flex gap-4">
+            <Button asChild className="flex-1">
+              <Link href={`/my-orders/${orderId}`}>Lihat Detail Pesanan</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="flex-1"
+              onClick={() => router.push("/")}
+            >
+              <Link href="/">Kembali ke Beranda</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SuccessPageContent />
+        </Suspense>
+    )
+}
