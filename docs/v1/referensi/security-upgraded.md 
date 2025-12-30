@@ -1,0 +1,237 @@
+🛡️ Fitur Market — Security & Validation Framework
+
+File: security-upgraded.md
+Maintainer: Tech Lead — Genexist Indonesia
+Last Updated: 2025-10-24
+Applies To: Next.js 14 + Supabase (Postgres) + Supabase Auth
+Aligned With: OWASP Top 10 (2025), NIST CSF, ISO 27001 Principles
+
+📘 Executive Summary
+
+Dokumen ini menyajikan kerangka keamanan terpadu untuk seluruh layanan di bawah Genexist Indonesia, khususnya proyek Fitur Market — marketplace berbasis AI dengan arsitektur Next.js 14 (App Router) dan Supabase.
+
+Fokus framework ini adalah defense-in-depth, data integrity, serta compliance readiness untuk environment staging → production.
+
+🔍 Security Stack Overview
+Komponen	Rekomendasi Minimum	Catatan Keamanan
+Framework	Next.js 14+	Gunakan Server Actions; rendering aman dari XSS
+Database	Supabase Postgres 15+	Row-Level Security (RLS) aktif di semua tabel
+Auth	Supabase Auth	JWT rotation aktif, sinkron dengan RLS
+Validation	Zod (client & server)	Validasi dua lapis wajib
+Rate Limiting	Upstash Redis	Cegah brute force & DDoS
+Upload	Server-side only	Metadata stripping, validasi MIME
+Session	Secure cookie + rotation	HttpOnly, replay-safe, CSRF-protected
+1️⃣ Dual Validation Framework
+
+Semua input tervalidasi dua kali — di client untuk UX, di server untuk integritas.
+
+Client Side:
+
+'use client'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { formSchema } from '@/lib/schema'
+
+export function FormHandler() {
+  const form = useForm({ resolver: zodResolver(formSchema) })
+  async function onSubmit(data) {
+    await createProduct(data)
+  }
+}
+
+
+Server Side:
+
+'use server'
+import { formSchema } from '@/lib/schema'
+
+export async function createProduct(raw) {
+  const parsed = formSchema.safeParse(raw)
+  if (!parsed.success) return { error: parsed.error }
+  // ✅ Validated — lanjut proses database
+}
+
+
+Setiap Server Action wajib re-validate agar tidak ada manipulasi payload dari client.
+
+2️⃣ Input Sanitization & Schema Rules
+
+Gunakan pipeline sanitasi universal:
+
+import DOMPurify from 'isomorphic-dompurify'
+export function sanitize(str: string) {
+  return DOMPurify.sanitize(str.trim(), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] })
+}
+
+
+Contoh skema validasi:
+
+import { z } from 'zod'
+export const productSchema = z.object({
+  name: z.string().min(3).max(100).transform(sanitize),
+  description: z.string().max(2000).optional(),
+  price: z.number().min(1000),
+  stock: z.number().min(0)
+})
+
+
+Semua payload dari client harus disanitasi dan divalidasi ulang di server.
+
+3️⃣ XSS / CSRF / SSRF Defense
+
+Middleware Origin Check
+
+export async function middleware(req) {
+  if (req.method === 'POST') {
+    const origin = req.headers.get('origin')
+    const host = req.headers.get('host')
+    if (origin && !origin.includes(host))
+      return new Response('Forbidden', { status: 403 })
+  }
+  return NextResponse.next()
+}
+
+
+Security Headers
+
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Content-Security-Policy: default-src 'self';
+
+
+Seluruh endpoint API & Server Actions wajib memiliki whitelist origin.
+
+4️⃣ File Upload Hardening
+
+Semua upload hanya lewat Server Action / Route API dengan validasi tipe file & ukuran.
+
+Server-side Upload
+
+export async function POST(req) {
+  const formData = await req.formData()
+  const file = formData.get('file')
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const mime = detectMime(buffer)
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(mime))
+    throw new Error('Invalid file type')
+}
+
+
+Supabase Storage Policy
+
+CREATE POLICY "Admin only upload" ON storage.objects
+FOR INSERT TO authenticated
+WITH CHECK (auth.role() IN ('admin','superadmin'));
+
+
+EXIF metadata dan GPS harus dihapus sebelum disimpan.
+
+5️⃣ Authentication & Session Security
+
+Secure Session Cookies
+
+cookies().set('fiturmarket_session', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 604800, // 7 hari
+})
+
+
+Rotation Policy
+
+Token diperbarui setiap login baru.
+
+Logout menghapus session lama.
+
+Semua aktivitas dicatat ke audit log.
+
+RLS Policy
+
+CREATE POLICY "User can access own profile" ON profiles
+USING (id = auth.uid() OR auth.role() IN ('admin','superadmin'));
+
+6️⃣ Rate Limiting & Abuse Prevention
+
+Implementasi edge-ready (Vercel + Upstash):
+
+import { Redis } from '@upstash/redis'
+
+export const rateLimit = async (key, max = 100, window = 60_000) => {
+  const redis = new Redis({ url: process.env.UPSTASH_URL!, token: process.env.UPSTASH_TOKEN! })
+  const count = await redis.incr(key)
+  if (count === 1) await redis.expire(key, window / 1000)
+  return count <= max
+}
+
+
+Limit endpoint sensitif: /api/login, /api/upload, /api/orders.
+
+7️⃣ Audit Log & Monitoring
+
+Schema Audit Log
+
+CREATE TABLE audit_logs (
+  id bigserial PRIMARY KEY,
+  actor uuid,
+  action text,
+  target text,
+  risk_score int,
+  created_at timestamptz DEFAULT now()
+);
+
+
+Aplikasi
+
+await auditLog({
+  actor: user.id,
+  action: 'UPDATE_PRODUCT',
+  target: product.id,
+  risk_score: 20
+})
+
+
+Kirim notifikasi Discord/Email bila risk_score >= 80.
+
+8️⃣ Database & RLS Policy Patterns
+CREATE OR REPLACE FUNCTION auth.is_admin() RETURNS boolean AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin','superadmin')
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
+
+CREATE POLICY "Admin full access" ON public.products
+  USING (auth.is_admin());
+
+
+Seluruh tabel wajib memiliki RLS dan setidaknya 1 kebijakan publik + 1 kebijakan admin.
+
+9️⃣ Penetration & Compliance Checklist
+Area	Status	Catatan
+SQL Injection	✅ Mitigated via parameterized queries	
+XSS	✅ CSP & DOMPurify aktif	
+CSRF	✅ Origin validation aktif	
+File Upload	🔒 Server-only endpoint	
+Auth	🟢 RLS & JWT rotation	
+Rate Limit	🟢 Implemented	
+Session	🟢 Secure cookie aktif	
+🔟 Priority Upgrade Plan
+Tahap	Fokus	Target
+P0	Dual validation, upload hardening, rate limit	2 minggu
+P1	CSRF + Session rotation automation	1 bulan
+P2	Audit + anomaly alert pipeline	2 bulan
+🧠 Security Philosophy
+
+“Validate twice, log once, trust none.”
+
+Semua input diverifikasi dua kali (client & server).
+
+Jangan pernah percaya data dari browser.
+
+Catat semua aksi signifikan ke audit log.
+
+Security Lead: Tech Lead — Genexist Indonesia
+Next Review: 2026-01-01
+Version: v1.2.0
+
+© 2025 Genexist Indonesia — Internal Cybersecurity Playbook

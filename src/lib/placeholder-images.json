@@ -1,0 +1,64 @@
+{
+  "placeholderImages": [
+    {
+      "id": "prod1",
+      "description": "Ergonomic office chair with lumbar support",
+      "imageUrl": "https://picsum.photos/seed/1/600/400",
+      "imageHint": "office chair"
+    },
+    {
+      "id": "prod2",
+      "description": "Wireless noise-cancelling headphones",
+      "imageUrl": "https://picsum.photos/seed/2/600/400",
+      "imageHint": "headphones"
+    },
+    {
+      "id": "prod3",
+      "description": "Mechanical keyboard with RGB lighting",
+      "imageUrl": "https://picsum.photos/seed/3/600/400",
+      "imageHint": "keyboard"
+    },
+    {
+      "id": "prod4",
+      "description": "4K Ultra HD 27-inch monitor",
+      "imageUrl": "https://picsum.photos/seed/4/600/400",
+      "imageHint": "computer monitor"
+    },
+    {
+      "id": "prod5",
+      "description": "Smart watch with fitness tracker",
+      "imageUrl": "https://picsum.photos/seed/5/600/400",
+      "imageHint": "smart watch"
+    },
+    {
+      "id": "prod6",
+      "description": "Portable bluetooth speaker",
+      "imageUrl": "https://picsum.photos/seed/6/600/400",
+      "imageHint": "bluetooth speaker"
+    },
+    {
+      "id": "prod7",
+      "description": "Lightweight running shoes",
+      "imageUrl": "https://picsum.photos/seed/7/600/400",
+      "imageHint": "running shoes"
+    },
+    {
+      "id": "prod8",
+      "description": "Insulated stainless steel water bottle",
+      "imageUrl": "https://picsum.photos/seed/8/600/400",
+      "imageHint": "water bottle"
+    },
+    {
+      "id": "prod9",
+      "description": "Modern minimalist desk lamp",
+      "imageUrl": "https://picsum.photos/seed/9/600/400",
+      "imageHint": "desk lamp"
+    },
+    {
+      "id": "prod10",
+      "description": "Aromatic coffee beans, medium roast",
+      "imageUrl": "https://picsum.photos/seed/10/600/400",
+      "imageHint": "coffee beans"
+    }
+  ]
+}
