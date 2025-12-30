@@ -123,7 +123,8 @@ export async function getProductById(id: string): Promise<Product | null> {
     .single()
 
   if (error) {
-    console.error("Error fetching product by id:", error)
+    // Log the ID being queried and serialize the error object for more details.
+    console.error(`Error fetching product by id: ${id}`, JSON.stringify(error, null, 2));
     return null
   }
 

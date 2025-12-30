@@ -1,21 +1,17 @@
 "use client"
 
-<<<<<<< HEAD
-import type { Product } from "@/lib/types"
-=======
 import { useMemo } from "react"
-import type { Product } from "@/lib/types" // Impor tipe data Product
->>>>>>> 1588f59 (push)
+import type { Product } from "@/lib/types"
 import { trendingProductIds } from "./trending-products"
 import { ProductCard } from "./product-card"
 
 interface ProductGridProps {
   products: Product[];
+  searchTerm?: string;
+  selectedCategory?: string;
+  sortBy?: string;
 }
 
-<<<<<<< HEAD
-export default function ProductGrid({ products }: ProductGridProps) {
-=======
 export default function ProductGrid({ products, searchTerm, selectedCategory, sortBy }: ProductGridProps) {
   // Gunakan Set untuk pencarian ID produk terlaris yang lebih cepat (O(1) average time complexity)
   const trendingIdsSet = useMemo(() => new Set(trendingProductIds), []);
@@ -26,7 +22,7 @@ export default function ProductGrid({ products, searchTerm, selectedCategory, so
       return [];
     }
 
-    let filteredProducts = products.filter(product => {
+    const filteredProducts = products.filter(product => {
       // Filter berdasarkan kata kunci pencarian
       const matchesSearchTerm = searchTerm
         ? product.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -42,21 +38,21 @@ export default function ProductGrid({ products, searchTerm, selectedCategory, so
 
     // Lakukan pengurutan pada array hasil filter.
     // Membuat salinan array dengan [...filteredProducts] untuk menghindari mutasi array asli.
+    const sorted = [...filteredProducts];
     if (sortBy === 'price-desc') {
-      return [...filteredProducts].sort((a, b) => b.price - a.price);
+      sorted.sort((a, b) => b.price - a.price);
     } else if (sortBy === 'price-asc') {
-      return [...filteredProducts].sort((a, b) => a.price - b.price);
+      sorted.sort((a, b) => a.price - b.price);
     }
 
-    return filteredProducts; // Kembalikan hasil filter jika tidak ada kriteria pengurutan
+    return sorted; // Kembalikan hasil filter dan urutkan
   }, [products, searchTerm, selectedCategory, sortBy]);
 
->>>>>>> 1588f59 (push)
   return (
     <>
-      {products.length > 0 ? (
+      {sortedAndFilteredProducts.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-          {products.map((product) => (
+          {sortedAndFilteredProducts.map((product) => (
             <ProductCard
               key={product.id}
               product={product}

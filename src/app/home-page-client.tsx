@@ -237,7 +237,12 @@ export function HomePageClient({
               </Button>
             ))}
           </div>
-          <ProductGrid products={products} />
+          <ProductGrid
+            products={products}
+            searchTerm={searchParams.get("search") || initialSearchTerm}
+            selectedCategory={searchParams.get("category") || initialSelectedCategory || undefined}
+            sortBy={searchParams.get("sortBy") || initialSortBy}
+          />
         </section>
       </main>
     </div>
